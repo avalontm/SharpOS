@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 Johann MacDonagh <johann [at] macdonaghs [dot] com>
+        *
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="SharpOS" default="build">
+	<target name="build">
+		<echo message="Processing data..." />
+		<nant buildfile="./KeyMaps/KeyMaps.build" />
+	</target>
+
+	<target name="test">
+		<!-- nothing yet -->
+	</target>
+
+	<target name="clean">
+		<nant buildfile="./KeyMaps/KeyMaps.build" target="clean" />
+	</target>
+</project>

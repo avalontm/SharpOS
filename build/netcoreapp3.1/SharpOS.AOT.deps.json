@@ -1,0 +1,64 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "SharpOS.AOT/1.0.0": {
+        "dependencies": {
+          "SharpOS.AOT.Core": "1.0.0",
+          "Mono.Cecil": "0.6.0.0",
+          "Mono.GetOptions": "2.0.0.0"
+        },
+        "runtime": {
+          "SharpOS.AOT.dll": {}
+        }
+      },
+      "SharpOS.AOT.Core/1.0.0": {
+        "runtime": {
+          "SharpOS.AOT.Core.dll": {}
+        }
+      },
+      "Mono.Cecil/0.6.0.0": {
+        "runtime": {
+          "Mono.Cecil.dll": {
+            "assemblyVersion": "0.6.0.0",
+            "fileVersion": "0.6.0.0"
+          }
+        }
+      },
+      "Mono.GetOptions/2.0.0.0": {
+        "runtime": {
+          "Mono.GetOptions.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SharpOS.AOT/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpOS.AOT.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Mono.Cecil/0.6.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Mono.GetOptions/2.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

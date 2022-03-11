@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\build\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\SharpOS.AOT.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>D:\SharpOS\References\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.GetOptions">
+      <HintPath>..\..\References\Mono.GetOptions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

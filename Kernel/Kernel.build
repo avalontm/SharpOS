@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 Johann MacDonagh <johann [at] macdonaghs [dot] com>
+        *
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="SharpOS" default="build">
+	<property name="prefix" value="../build" overwrite="true" />
+	<property name="arch" value="X86" readonly="false" overwrite="false" />
+	<property name="aot-options" value="" readonly="false" overwrite="false" />
+	<property name="data-dir" value="../Data" />
+	<property name="temp-dir" value="${path::combine(prefix, 'Temp')}" />
+	<property name="disk-images-dir" value="${path::combine(data-dir, 'DiskImages')}" />
+	<property name="distro-dir" value="${path::combine(prefix, 'distro')}" />
+	<property name="common-dir" value="${path::combine(distro-dir, 'common')}" />
+	<property name="vpc-dir" value="${path::combine(distro-dir, 'virtualpc')}" />
+	<property name="qemu-dir" value="${path::combine(distro-dir, 'qemu')}" />
+	<property name="qemu-bin" value="${path::combine(qemu-dir, 'qemu.exe')}" />
+	<property name="diagtool-bin" value="${path::combine(prefix, 'DiagnosticTool.exe')}" />
+	<property name="floppy-images-dir" value="${path::combine(data-dir, 'FloppyDiskImage')}" />
+
+	<target name="build">
+		<echo message="Building the SharpOS kernel" />
+		<nant buildfile="./Core/Core.build" />
+	</target>
+
+	<target name="test">
+		<nant buildfile="./Tests/Tests.build"/>
+		<nant buildfile="./Core/Core.build" target="test" />
+	</target>
+
+	<target name="aot" depends="build">
+		<echo message="AOT compiling the SharpOS Kernel" />
+		<exec program="${path::combine(prefix, 'sharpos-aot.exe')}" 
+			commandline="-v -c:${arch} ${aot-options} ${path::combine(prefix, 'SharpOS.Kernel.dll')}" />
+			
+		<echo message="Update the disk image and create virtual hard disk..." />
+		<delete file="${path::combine(common-dir,'SharpOS.img')}" failonerror="false" />
+		<delete file="${path::combine(vpc-dir,'hd1.vhd')}" failonerror="false" />
+		<copy file="${path::combine(disk-images-dir, 'TemplateDisk.img')}" tofile="${path::combine(common-dir, 'SharpOS.img')}" overwrite="true" />
+		<exec program="${path::combine(prefix, 'disk-image-updater.exe')}"
+			commandline="-m -i ${path::combine(prefix, 'SharpOS.Kernel.bin')} -o ${path::combine(common-dir, 'SharpOS.img')} -vhd ${path::combine(vpc-dir, 'hd1.vhd')}" />
+	</target>
+
+	<target name="aot-test">
+		<echo message="AOT compiling the SharpOS Kernel" />
+		<exec program="${path::combine(prefix, 'sharpos-aot.exe')}" 
+			commandline="-v -c:${arch} ${aot-options} ${path::combine(prefix, 'SharpOS.Kernel.dll')} ${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.dll')} ${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.dll')}"/>
+			
+		<echo message="Update the disk image..." />
+		<delete file="${path::combine(common-dir,'SharpOS.img')}" failonerror="false" />
+		<copy file="${path::combine(disk-images-dir, 'TemplateDisk.img')}" tofile="${path::combine(common-dir, 'SharpOS.img')}" overwrite="true" />
+		<exec program="${path::combine(prefix, 'disk-image-updater.exe')}"
+			commandline="-m -i ${path::combine(prefix, 'SharpOS.Kernel.bin')} -o ${path::combine(common-dir, 'SharpOS.img')}" />
+	</target>
+	
+	<target name="run">
+		<if test="${platform::is-unix() == true}" >
+			<exec program="qemu"
+				commandline="-no-kqemu ${path::combine(common-dir, 'SharpOS.img')} -serial file:${path::combine(common-dir, '../../SerialOutput.txt')}" />
+		</if>
+		
+		<if test="${platform::is-unix() == false}" >
+			<exec program="${qemu-bin}"
+				commandline="-L ${qemu-dir} -no-kqemu ${path::combine(common-dir, 'SharpOS.img')} -serial file:${path::combine(common-dir, '../../SerialOutput.txt')}" />
+		</if>
+	</target>
+
+	<target name="debug">
+		<if test="${platform::is-unix() == true}" >
+      <echo message="Please update Kernel.build NAnt script..." />
+    </if>
+
+    <if test="${platform::is-unix() == false}" >
+			<exec program="${diagtool-bin}" />
+		</if>
+	</target>
+
+	<target name="clean">
+		<nant buildfile="./Core/Core.build" target="clean" />
+		<nant buildfile="./Tests/Tests.build" target="clean" />
+	</target>
+</project>	

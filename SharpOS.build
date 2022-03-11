@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 Johann MacDonagh <johann [at] macdonaghs [dot] com>
+        *
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="SharpOS" default="build">
+	<target name="copy">
+		<copy todir="build">
+			<fileset basedir="References">
+				<include name="*" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="build" depends="copy">
+		<echo message="Building projects" />
+		<nant buildfile="./Tools/Tools.build" />
+		<nant buildfile="./AOT/AOT.build" />
+		<nant buildfile="./Data/Data.build" />
+		<nant buildfile="./Kernel/Kernel.build" />
+	</target>
+
+	<target name="test" depends="copy">
+		<echo message="Running integrity tests..." />
+		<nant buildfile="./Tools/Tools.build"/>
+		<nant buildfile="./AOT/AOT.build" target="test" />
+		<nant buildfile="./Data/Data.build"/>
+		<nant buildfile="./Kernel/Kernel.build" target="test" />
+	</target>
+
+	<target name="dist" depends="build">
+		<nant buildfile="./Kernel/Kernel.build" 
+			target="aot" />
+	</target>
+	
+	<target name="dist-test" depends="test">
+		<nant buildfile="./Kernel/Kernel.build" 
+			target="aot-test" />
+	</target>
+	
+	<target name="run" depends="dist">
+		<nant buildfile="./Kernel/Kernel.build" 
+			target="run" />
+	</target>
+	
+	<target name="run-test" depends="dist-test">
+		<nant buildfile="./Kernel/Kernel.build" 
+			target="run" />
+	</target>
+	
+	<target name="debug" depends="dist">
+		<nant buildfile="./Kernel/Kernel.build" 
+			target="debug" />
+	</target>
+	
+	<target name="debug-test" depends="dist-test">
+		<nant buildfile="./Kernel/Kernel.build" 
+			target="debug" />
+	</target>
+	
+	<target name="vsupdate">
+		<echo message="Updating VS files..." />
+		<nant buildfile="./Tools/VSUpdate/VSUpdate.build"/>
+
+		<property name="prefix" value="build" overwrite="true" />
+		
+		<exec program="${path::combine(prefix, 'VSUpdate.exe')}"
+			commandline="." />
+	</target>
+	
+	<target name="clean">
+		<nant buildfile="./Tools/Tools.build" target="clean" />
+		<nant buildfile="./AOT/AOT.build" target="clean" />
+		<nant buildfile="./Data/Data.build" target="clean" />
+		<nant buildfile="./Kernel/Kernel.build" target="clean" />
+		<delete dir="./build/Temp" />
+	</target>
+</project>

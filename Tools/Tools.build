@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 Johann MacDonagh <johann [at] macdonaghs [dot] com>
+        *
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="SharpOS" default="build">
+	<target name="build">
+		<echo message="Building useful tools..." />
+		<nant buildfile="./KeyCompiler/KeyCompiler.build" />
+		<nant buildfile="./KernelTestsWrapperGen/KernelTestsWrapperGen.build" />
+		<nant buildfile="./DiskImageUpdater/DiskImageUpdater.build" />
+		<nant buildfile="./RuntimeCop/RuntimeCop.build" />
+		<nant buildfile="./VSUpdate/VSUpdate.build" />
+    <nant buildfile="./DiagnosticTool/DiagnosticTool.build" />
+  </target>
+
+	<target name="test">
+		<!-- nothing to do yet -->
+	</target>
+
+	<target name="clean">
+		<nant buildfile="./KeyCompiler/KeyCompiler.build" target="clean" />
+		<nant buildfile="./KernelTestsWrapperGen/KernelTestsWrapperGen.build" target="clean" />
+		<nant buildfile="./DiskImageUpdater/DiskImageUpdater.build" target="clean" />
+		<nant buildfile="./RuntimeCop/RuntimeCop.build" target="clean" />
+		<nant buildfile="./VSUpdate/VSUpdate.build" target="clean" />
+    <nant buildfile="./DiagnosticTool/DiagnosticTool.build" target="clean" />
+  </target>
+</project>

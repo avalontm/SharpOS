@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 Johann MacDonagh <johann [at] macdonaghs [dot] com>
+        *
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="SharpOS Kernel" default="build">
+	<property name="debug" value="false" readonly="false" overwrite="false" />
+	<property name="prefix" value="../../build" overwrite="true" />
+	<property name="temp-dir" value="${path::combine(prefix, 'Temp')}" />
+	<property name="data-dir" value="../../Data" />
+	<property name="floppy-images-dir" value="${path::combine(data-dir, 'FloppyDiskImage')}" />
+
+	<target name="conf">
+		<!-- nothing yet -->		
+	</target>
+
+	<target name="keymaps">
+		<!-- create the keymap archive -->
+		<echo message="Preparing keymap archive to build into the kernel" />
+		
+		<mkdir dir="${path::combine(prefix, 'Temp')}" failonerror="false" />
+		<exec program="${path::combine(prefix, 'key-compiler.exe')}" 
+			commandline="-ar -o:${path::combine(temp-dir, 'BuiltinKeyMaps.ska')} @Config/BuiltinKeyMaps.cfg" />
+
+	</target>
+	
+	<target name="build" depends="keymaps">
+		
+		<echo message="Building the SharpOS kernel" />
+
+		<csc target="library" output="${path::combine(prefix, 'SharpOS.Kernel.dll')}" debug="${debug}" unsafe="true">
+			<references>
+				<include name="${path::combine(prefix, 'SharpOS.AOT.Core.dll')}" />
+			</references>
+			<resources>
+				<include name="${path::combine(floppy-images-dir, 'fat12.img')}" asis="true" />
+			</resources>
+			<resources>
+				<include name="${path::combine(temp-dir, 'BuiltinKeyMaps.ska')}" asis="true" />			</resources>
+
+			<sources>
+				<include name="**/*.cs" />
+			</sources>
+		</csc>
+		
+	</target>
+	
+	<target name="test" depends="keymaps">
+		<echo message="Building the SharpOS kernel and tests" />
+
+		<csc target="library" output="${path::combine(prefix, 'SharpOS.Kernel.dll')}" debug="true" unsafe="true" define="KERNEL_TESTS">
+			<references>
+				<include name="${path::combine(prefix, 'SharpOS.AOT.Core.dll')}" />
+				<include name="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.dll')}" />
+				<include name="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.dll')}" />
+			</references>
+			<resources>
+				<include name="${path::combine(floppy-images-dir, 'fat12.img')}" asis="true" />
+			</resources>
+			<resources>
+				<include name="${path::combine(temp-dir, 'BuiltinKeyMaps.ska')}" asis="true" />
+			</resources>
+			<sources>
+				<include name="**/*.cs" />
+			</sources>
+		</csc>
+		
+	</target>
+	
+	<target name="fxcop" depends="build">
+		<exec program="fxcopcmd.exe"
+			commandline="/p:SharpOS.Kernel.Core.fxcop /o:${path::combine(prefix, 'SharpOS.Kernel.Core-fxcop.xml')}" 
+			failonerror="false" />
+	</target>
+	
+	<target name="clean">
+		<delete file="build/keymaps.ska" failonerror="false" />
+		<delete file="${path::combine(temp-dir, 'BuiltinKeymaps.ska')}" failonerror="false" />
+		
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.dll')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.bin')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.pdb')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.dll.mdb')}" failonerror="false" />
+	</target>
+</project>

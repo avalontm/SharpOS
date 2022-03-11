@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\build\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\AOT\Core\SharpOS.AOT.Core.csproj" />
+    <ProjectReference Include="..\..\Core\SharpOS.Kernel.Core.csproj" />
+    <ProjectReference Include="..\CS\SharpOS.Kernel.Tests.CS.csproj" />
+    <ProjectReference Include="..\IL\SharpOS.Kernel.Tests.IL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\References\nunit.framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\build\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Addition.il" />
+    <None Remove="ConditionChecking.il" />
+    <None Remove="ConstantLoading.il" />
+    <None Remove="ConversionOperations.il" />
+    <None Remove="ExceptionHandling.il" />
+    <None Remove="Generated.il" />
+    <None Remove="Main.il" />
+    <None Remove="MethodArguments.il" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Addition.il" />
+    <EmbeddedResource Include="ConditionChecking.il" />
+    <EmbeddedResource Include="ConstantLoading.il" />
+    <EmbeddedResource Include="ConversionOperations.il" />
+    <EmbeddedResource Include="ExceptionHandling.il" />
+    <EmbeddedResource Include="Generated.il" />
+    <EmbeddedResource Include="Main.il" />
+    <EmbeddedResource Include="MethodArguments.il" />
+  </ItemGroup>
+
+</Project>

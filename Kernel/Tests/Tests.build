@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 Johann MacDonagh <johann [at] macdonaghs [dot] com>
+        *
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="SharpOS AOT Testing Kernel" default="build">
+	<description>Compiles a set of tests for the AOT compiler.</description>
+
+	<property name="prefix" value="../../build" readonly="true" />
+	<property name="distro-dir" value="${path::combine(prefix, 'distro')}" />
+	<property name="common-dir" value="${path::combine(distro-dir, 'common')}" />
+	
+	<target name="build">
+		<echo message="Building Test Kernel" />
+		
+		<copy file="../../References/nunit.framework.dll" tofile="${path::combine(prefix, 'nunit.framework.dll')}" />
+		<mkdir dir="${prefix}" />
+
+		<ilasm target="dll" output="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.dll')}">
+			<sources>
+				<include name="IL/*.il" />
+			</sources>
+		</ilasm>
+
+		<csc target="library" unsafe="true" output="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.dll')}">
+			<references>
+				<include name="${path::combine(prefix, 'SharpOS.AOT.Core.dll')}" />
+			</references>
+			<sources>
+				<include name="CS/*.cs" />
+			</sources>
+		</csc>
+		
+		<echo message="Generating Wrapper files..." />
+		<exec program="${path::combine (prefix, 'KernelTestsWrapperGen.exe')}" />
+		
+		<csc target="library" unsafe="true" output="${path::combine(prefix, 'SharpOS.Kernel.Tests.NUnit.dll')}">
+			<references>
+				<include name="${path::combine(prefix, 'nunit.framework.dll')}" />
+				<include name="${path::combine(prefix, 'SharpOS.AOT.Core.dll')}" />
+				<include name="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.dll')}" />
+				<include name="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.dll')}" />
+			</references>
+			<sources>
+				<include name="NUnit/*.cs" />
+			</sources>
+		</csc>
+	</target>
+	
+	<target name="clean">
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.dll')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.xml')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.dll.mdb')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.pdb')}" failonerror="false" />
+
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.dll')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.xml')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.dll.mdb')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.IL.pdb')}" failonerror="false" />
+		
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.dll')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.xml')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.dll.mdb')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.CS.pdb')}" failonerror="false" />
+		
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.NUnit.dll')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.NUnit.xml')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.NUnit.dll.mdb')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.Kernel.Tests.NUnit.pdb')}" failonerror="false" />
+		
+		<delete file="${path::combine(prefix, 'SharpOS.AOT.Kernel.Tests.bin')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'SharpOS.AOT.Kernel.Tests.img')}" failonerror="false" />
+		<delete file="${path::combine(prefix, 'tests.dump')}" failonerror="false" />
+	</target>
+</project>

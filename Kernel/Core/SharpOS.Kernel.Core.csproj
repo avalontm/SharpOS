@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>false</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\..\build\</OutputPath>
+    <DefineConstants>TRACE;KERNEL_TESTS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="BuiltinKeymaps.ska" />
+    <None Remove="fat12.img" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BuiltinKeymaps.ska" />
+    <EmbeddedResource Include="fat12.img" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AOT\Core\SharpOS.AOT.Core.csproj" />
+    <ProjectReference Include="..\Tests\CS\SharpOS.Kernel.Tests.CS.csproj" />
+    <ProjectReference Include="..\Tests\IL\SharpOS.Kernel.Tests.IL.csproj" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(SolutionDir)\build\KernelTestsWrapperGen.exe $(SolutionDir)\build\key-compiler.exe &quot;$(SolutionDir)\Data\KeyMaps\DE.skm&quot; -o:&quot;$(SolutionDir)\build\KeyMaps\DE.bin&quot;&#xD;&#xA;&#xA;$(SolutionDir)\build\key-compiler.exe &quot;$(SolutionDir)\Data\KeyMaps\US.skm&quot; -o:&quot;$(SolutionDir)\build\KeyMaps\US.bin&quot;&#xA;&#xD;&#xA;$(SolutionDir)\build\key-compiler.exe  &quot;$(SolutionDir)\Data\KeyMaps\UK.skm&quot; -o:&quot;$(SolutionDir)\build\KeyMaps\UK.bin&quot;&#xA;&#xD;&#xA;$(SolutionDir)\build\key-compiler.exe  &quot;$(SolutionDir)\Data\KeyMaps\US-Dvorak-ANSI.skm&quot; -o:&quot;$(SolutionDir)\build\KeyMaps\US-Dvorak-ANSI.bin&quot;&#xA;&#xD;&#xA;$(SolutionDir)\build\key-compiler.exe &quot;$(SolutionDir)\Data\KeyMaps\US-Dvorak-Classic.skm&quot; -o:&quot;$(SolutionDir)\build\KeyMaps\US-Dvorak-Classic.bin&quot;&#xA;&#xD;&#xA;$(SolutionDir)\build\key-compiler.exe  -ar -o:&quot;$(TargetDir)\Temp\BuiltinKeymaps.ska&quot; &quot;@$(ProjectDir)\Config\BuiltinKeymaps.cfg&quot;" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(SolutionDir)build\netcoreapp3.1\SharpOS.AOT.exe -d:tests.dump -text-dump -v -o $(SolutionDir)build\SharpOS.Kernel.bin $(SolutionDir)build\netstandard2.0\SharpOS.Kernel.Core.dll $(SolutionDir)build\netstandard2.0\SharpOS.Kernel.Tests.CS.dll $(SolutionDir)build\netstandard2.0\SharpOS.Kernel.Tests.IL.dll &#xD;&#xA;&#xD;&#xA;&#xA;copy $(SolutionDir)Data\DiskImages\TemplateDisk.img $(SolutionDir)build\distro\common\SharpOS.img &#xD;&#xA;$(SolutionDir)build\disk-image-updater.exe -m -i $(SolutionDir)build\SharpOS.Kernel.bin -o $(SolutionDir)build\distro\common\SharpOS.img -vhd $(SolutionDir)build\distro\VirtualPC\hd1.vhd" />
+  </Target>
+
+</Project>
