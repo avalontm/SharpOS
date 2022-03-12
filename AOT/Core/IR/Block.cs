@@ -467,6 +467,7 @@ namespace SharpOS.AOT.IR {
 
 		private Register SetRegister ()
 		{
+
 			if (this.stack.Count > this.method.MaxStack)
 				throw new EngineException ("Stack overflow. ('" + this.method.MethodFullName + "')");
 
@@ -2343,13 +2344,26 @@ namespace SharpOS.AOT.IR {
 
 		private SharpOS.AOT.IR.Instructions.Instruction Ldelem_Any (Mono.Cecil.Cil.Instruction cilInstruction)
 		{
-			throw new NotImplementedEngineException ();
+			TypeReference typeReference = cilInstruction.Operand as TypeReference;
+
+			Register index = this.GetRegister();
+			Register arrayRef = this.GetRegister();
+
+			Register result = this.SetRegister();
+
+			return new Ldelem_Any(this.method.GetClass(typeReference), result, index, arrayRef);
 		}
 
 		private SharpOS.AOT.IR.Instructions.Instruction Stelem_Any (Mono.Cecil.Cil.Instruction cilInstruction)
 		{
-			//throw new NotImplementedEngineException ();
-			return null;
+			TypeReference typeReference = cilInstruction.Operand as TypeReference;
+
+			Register index = this.GetRegister();
+			Register arrayRef = this.GetRegister();
+
+			Register result = this.SetRegister();
+
+			return new Stelem_Any(this.method.GetClass(typeReference), result, index, arrayRef);
 		}
 
 		private SharpOS.AOT.IR.Instructions.Instruction Ldelema (Mono.Cecil.Cil.Instruction cilInstruction)

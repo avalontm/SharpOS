@@ -1,0 +1,7 @@
+D:\SharpOS\build\SharpOS.Kernel.Tests.CS.dll
+D:\SharpOS\build\SharpOS.Kernel.Tests.CS.pdb
+D:\SharpOS\Kernel\Tests\CS\obj\Debug Test\SharpOS.Kernel.Tests.CS.csproj.AssemblyReference.cache
+D:\SharpOS\Kernel\Tests\CS\obj\Debug Test\SharpOS.Kernel.Tests.CS.csproj.CoreCompileInputs.cache
+D:\SharpOS\Kernel\Tests\CS\obj\Debug Test\SharpOS.Kernel.Tests.CS.csproj.CopyComplete
+D:\SharpOS\Kernel\Tests\CS\obj\Debug Test\SharpOS.Kernel.Tests.CS.dll
+D:\SharpOS\Kernel\Tests\CS\obj\Debug Test\SharpOS.Kernel.Tests.CS.pdb

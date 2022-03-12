@@ -1,0 +1,6 @@
+D:\SharpOS\build\key-compiler.exe
+D:\SharpOS\build\key-compiler.pdb
+D:\SharpOS\Tools\KeyCompiler\obj\Debug\KeyCompiler.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\KeyCompiler\obj\Debug\KeyCompiler.csproj.CopyComplete
+D:\SharpOS\Tools\KeyCompiler\obj\Debug\key-compiler.exe
+D:\SharpOS\Tools\KeyCompiler\obj\Debug\key-compiler.pdb

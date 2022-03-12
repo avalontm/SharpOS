@@ -1,0 +1,7 @@
+D:\SharpOS\build\runtime-cop.xml
+D:\SharpOS\build\runtime-cop.exe
+D:\SharpOS\build\runtime-cop.pdb
+D:\SharpOS\Tools\RuntimeCop\obj\Release\RuntimeCop.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\RuntimeCop\obj\Release\RuntimeCop.csproj.CopyComplete
+D:\SharpOS\Tools\RuntimeCop\obj\Release\runtime-cop.exe
+D:\SharpOS\Tools\RuntimeCop\obj\Release\runtime-cop.pdb

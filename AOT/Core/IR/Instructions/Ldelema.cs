@@ -26,8 +26,7 @@ namespace SharpOS.AOT.IR.Instructions {
 		/// <param name="type">The type.</param>
 		/// <param name="index">Array's index.</param>
 		/// <param name="arrayRef">Array reference.</param>
-		public Ldelema (Class type, Register result, Register index, Register arrayRef)
-			: base ("Ldelema", result, new Operand [] { arrayRef, index })
+		public Ldelema (Class type, Register result, Register index, Register arrayRef) : base ("Ldelema", result, new Operand [] { arrayRef, index })
 		{
 			this.type = type;
 		}

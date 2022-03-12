@@ -1,0 +1,7 @@
+D:\SharpOS\build\DiagnosticTool.exe
+D:\SharpOS\build\DiagnosticTool.pdb
+D:\SharpOS\Tools\DiagnosticTool\obj\Release\DiagnosticTool.csproj.AssemblyReference.cache
+D:\SharpOS\Tools\DiagnosticTool\obj\Release\DiagnosticTool.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\DiagnosticTool\obj\Release\DiagnosticTool.csproj.CopyComplete
+D:\SharpOS\Tools\DiagnosticTool\obj\Release\DiagnosticTool.exe
+D:\SharpOS\Tools\DiagnosticTool\obj\Release\DiagnosticTool.pdb

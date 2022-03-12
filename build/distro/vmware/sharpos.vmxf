@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<Foundry>
-<VM>
-<VMId type="string">52 e1 78 de c1 b3 29 49-4b 57 20 39 97 22 28 b2</VMId>
-<ClientMetaData>
-<clientMetaDataAttributes/>
-<HistoryEventList/></ClientMetaData>
-<vmxPathName type="string">sharpos.vmx</vmxPathName></VM></Foundry>

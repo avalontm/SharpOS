@@ -1424,7 +1424,9 @@ namespace SharpOS.AOT.IR {
 				this.currentModule = _class.ClassDefinition.Module;
 				this.currentType = _class.ClassDefinition as TypeDefinition;
 
-				for (int i = 0; i < _class.Methods.Count; i++ ) {
+				for (int i = 0; i < _class.Methods.Count; i++ ) 
+				{
+					Console.WriteLine($"[{i}] {_class.Methods[i].Name}");
 					Method _method = _class.Methods [i];
 					
 					this.currentMethod = _method.MethodDefinition;
@@ -1443,17 +1445,20 @@ namespace SharpOS.AOT.IR {
 						mainEntryPoint = _method;
 					}
 
-					if (this.options.DumpFilter.Length > 0
-							&& _method.ToString ().IndexOf (this.options.DumpFilter) == -1) {
+					if (this.options.DumpFilter.Length > 0 && _method.ToString().IndexOf(this.options.DumpFilter) == -1)
+					{
 
 						// If a filter is defined then turn off the verbosity
 						Dump.Enabled = false;
 
-						_method.Process ();
+						_method.Process();
 
 						Dump.Enabled = true;
-					} else
-						_method.Process ();
+					}
+					else
+					{
+						_method.Process();
+					}
 				}
 
 				this.currentMethod = null;

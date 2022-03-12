@@ -1,0 +1,7 @@
+D:\SharpOS\build\SharpOS.Kernel.dll
+D:\SharpOS\build\SharpOS.Kernel.pdb
+D:\SharpOS\Kernel\Core\obj\Debug\SharpOS.Kernel.Core.csproj.AssemblyReference.cache
+D:\SharpOS\Kernel\Core\obj\Debug\SharpOS.Kernel.Core.csproj.CoreCompileInputs.cache
+D:\SharpOS\Kernel\Core\obj\Debug\SharpOS.Kernel.Core.csproj.CopyComplete
+D:\SharpOS\Kernel\Core\obj\Debug\SharpOS.Kernel.dll
+D:\SharpOS\Kernel\Core\obj\Debug\SharpOS.Kernel.pdb

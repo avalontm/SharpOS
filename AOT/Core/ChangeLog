@@ -1,0 +1,134 @@
+2008-02-12  William Lahti <xfurious@gmail.com>
+	* X86/IR.cs: implemented null checking for ldfld and ldflda
+
+2007-08-02  William Lahti <xfurious@gmail.com>
+	* X86/Assembly.cs: moved AddResources() call inside the data section
+	(before DATA_END label).
+
+2007-07-28  William Lahti <xfurious@gmail.com>
+	* X86/Assembly.cs: added support for encoding assembly resources into
+	the output binary
+	* X86/Assembly.cs: improved some documentation
+	* X86/AssemblyMethod.cs: removed some debug cruft I accidentally left
+	in
+	* X86/Engine.cs: refactoring
+	* IR/EngineOptions.cs: added a Resources field
+	* IR/Engine.cs: added support for reading the resources from
+	assemblies
+	* IR/Block.cs: removed some irritating messages
+	* Program.cs: added an option for adding resources from the command
+	line and other minor improvements / refactoring
+
+2007-07-19  William Lahti <xfurious@gmail.com>
+	* X86/Assembly.cs: more verbose information for multiple label
+	definition exception
+	* IR/Engine.cs: changed FixupADCMethod to return a new MethodReference
+	instead of changing the DeclaringType value of the existing
+	MethodReference. This stops the multiple definition problem as it
+	seems the same reference instance is used to define the label of the
+	method later in the AOT process.
+	* IR/Block.cs: replaces the MethodReference used to translate the
+	CIL to IR instead of changing the CIL opcode after the fact. This was
+	an oversight on my part earlier.
+
+2007-07-18  William Lahti <xfurious@gmail.com>
+	* X86/AssemblyMethod.cs: Added support for using variables for the
+	size of a 'stackalloc' operation, as opposed to constants. Now this
+	works:
+
+	int count = 4;
+	int *array = stackalloc int [count];
+
+2007-07-17  William Lahti <xfurious@gmail.com>
+	* IR/Engine.cs: Added SetStatusInformation and ClearStatusInformation
+	which can be used from other phases of compilation to set the current
+	method being compiled.
+	* Program.cs: status information is now shown at any stage of
+	compilation as long as the current method is not null.
+	* X86/Assembly.cs: use SetStatusInformation to provide status during
+	assembly encoding phase
+	
+2007-06-18  William Lahti <xfurious@gmail.com>
+	* IR/Engine.cs: Engine.GetInternalType(): gave 'void' a specific case
+	and added a warning if no specific case is found
+	* Changelog: wrapping
+
+2007-06-18  William Lahti  <xfurious@gmail.com>
+	* Added better error handling, the AOT tells you what method it was in
+	when it crashed :)
+	* The program wrapping SharpOS.AOT.IR.Engine can pull some status
+	information from the Engine instance in the case of an exception.
+
+2007-05-14  William Lahti  <xfurious@gmail.com>
+	* SharpOS.AOT.build: added missing delete directives in `clean' target.
+	* X86/Assembly.cs: Added CRType register size to GetSizeType
+
+2007-05-10  Bruce Markham  <illuminus86@gmail.com>
+	* IR/Operands/MethodReference.cs: new class to represent a 
+	Mono.Cecil.MethodReference for use in 'Assign' type IR instructions
+	* IR/Block.cs: added a handler for OpCodes.Ldftn in method
+	ConvertFromCIL(), also fixed ambiguous type reference between
+	Mono.Cecil.MethodReference and IR.Operands.MethodReference
+	* IR/Engine.cs: fixed ambiguous type reference between
+	Mono.Cecil.MethodReference and IR.Operands.MethodReference
+	* IR/Method.cs: fixed ambiguous type reference between
+	Mono.Cecil.MethodReference and IR.Operands.MethodReference
+	* IR/Operands/Call.cs:  fixed ambiguous type reference between
+	Mono.Cecil.MethodReference and IR.Operands.MethodReference
+
+2007-05-07  William Lahti  <xfurious@gmail.com>
+	* fixed clobbering of assembly dump
+	* Program.cs: fixed missing argument for 'file not found' error
+	* Program.cs: fixed handling of output filename options
+
+2007-05-06  William Lahti  <xfurious@gmail.com>
+	* more documentation
+	* IR/Engine.cs: Added better compatibility checking for ADC stub fixups,
+	support for nested namespaces in ADC.
+	* IR/EngineOptions.cs: moved class from IR/Engine.cs
+	* IR/EngineException.cs: moved class from IR/EngineException.cs
+	* Attributes/ADCLayerAttribute.cs: moved from ADCAttributes.cs
+	* Attributes/ADCInterfaceAttribute.cs: new attribute to allow nested
+	namespaces in the ADC interface/layers.
+	* Attributes/ADCStubAttribute.cs: moved from ADCAttributes.cs
+	
+2007-05-06  William Lahti  <xfurious@gmail.com>
+	* IR/Instructions/Instructions.cs: uses new DumpProcessor constructor
+	* IR/Engine.cs: modified to pass console dump options to DumpProcessor
+	* IR/Dump.cs: modified to allow real-time output of dump information, as
+	opposed to dumping at the very end of the AOT.
+	* IR/Block.cs: uses new DumpProcessor constructor
+	* Program.cs: now supports -console-dump option
+	
+2007-05-01  William Lahti  <xfurious@gmail.com>
+	* IR/Engine.cs: refactoring, added support for automatically ignoring 
+	classes from ADC implementation namespaces (that is, those specified by 
+	ADCLayerAttributes on the assembly).
+	* IR/Block.cs: added support for automatic fixup of calls to methods 
+	marked with ADCStubAttribute to the correct ADC layer implementation 
+	as selected by the current CPU type.
+	* Program.cs: added support for generation of bootable floppy images.
+	* Attributes/ADCAttributes.cs: ADCLayerAttribute, ADCStubAttribute are 
+	used to control the AOT's architecture-dependent code mechanisms.
+	* Attributes/StringAttribute.cs: added documentation
+	* Resources/ImageBuilder.sh: A floppy image generator for UNIX/Linux.
+	* Resources/ImageBuilder.bat: A floppy image generator for Microsoft 
+	Windows.
+	* SharpOS.AOT.build: added resources to build file
+	* ChangeLog: added a top-level ChangeLog.
+
+2007-04-29  William Lahti  <xfurious@gmail.com>
+
+	* added option support
+	* added multiple-DLL compilation support
+	* split the AOT into SharpOS.AOT.Core.dll and SharpOS.AOT.exe.
+	* added XML/new text format dumping
+	* IR/Method.cs: changed Method.LiveRange, Method.DefUseItem to public.
+	changed Method.Dump() to Method.DumpBlocks().
+	* Instructions/*.cs: removed Dump() overrides for the Pop, Return, and 
+	Switch instructions.
+	* added some FIXMEs for incorrect/foggy documentation
+	* IR/Engine.cs: added EngineVersion, value is 'svn' (should match release).
+	* various minor refactoring
+	* changed build file to allow command line definition of 'debug' property
+	* changed build file to include "Attributes/*.cs" sources.

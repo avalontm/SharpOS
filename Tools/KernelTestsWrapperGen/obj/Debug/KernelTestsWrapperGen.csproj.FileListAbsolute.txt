@@ -1,0 +1,7 @@
+D:\SharpOS\build\KernelTestsWrapperGen.exe
+D:\SharpOS\build\KernelTestsWrapperGen.pdb
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Debug\KernelTestsWrapperGen.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Debug\KernelTestsWrapperGen.csproj.CopyComplete
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Debug\KernelTestsWrapperGen.exe
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Debug\KernelTestsWrapperGen.pdb
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Debug\KernelTestsWrapperGen.csproj.AssemblyReference.cache

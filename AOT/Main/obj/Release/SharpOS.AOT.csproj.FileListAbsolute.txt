@@ -1,0 +1,11 @@
+D:\SharpOS\AOT\build\SharpOS.AOT.xml
+D:\SharpOS\AOT\build\sharpos-aot.exe
+D:\SharpOS\AOT\build\sharpos-aot.pdb
+D:\SharpOS\AOT\Main\obj\Release\SharpOS.AOT.csproj.AssemblyReference.cache
+D:\SharpOS\AOT\Main\obj\Release\SharpOS.AOT.csproj.CoreCompileInputs.cache
+D:\SharpOS\AOT\Main\obj\Release\SharpOS.AOT.csproj.CopyComplete
+D:\SharpOS\AOT\Main\obj\Release\sharpos-aot.exe
+D:\SharpOS\AOT\Main\obj\Release\sharpos-aot.pdb
+D:\SharpOS\build\sharpos-aot.exe
+D:\SharpOS\build\sharpos-aot.pdb
+D:\SharpOS\build\sharpos-aot.exe.config

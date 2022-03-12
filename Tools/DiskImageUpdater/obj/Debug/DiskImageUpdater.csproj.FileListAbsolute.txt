@@ -1,0 +1,7 @@
+D:\SharpOS\build\disk-image-updater.exe
+D:\SharpOS\build\disk-image-updater.pdb
+D:\SharpOS\Tools\DiskImageUpdater\obj\Debug\DiskImageUpdater.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\DiskImageUpdater\obj\Debug\DiskImageUpdater.csproj.CopyComplete
+D:\SharpOS\Tools\DiskImageUpdater\obj\Debug\disk-image-updater.exe
+D:\SharpOS\Tools\DiskImageUpdater\obj\Debug\disk-image-updater.pdb
+D:\SharpOS\Tools\DiskImageUpdater\obj\Debug\DiskImageUpdater.csproj.AssemblyReference.cache

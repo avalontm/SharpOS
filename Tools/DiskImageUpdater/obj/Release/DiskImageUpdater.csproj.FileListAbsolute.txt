@@ -1,0 +1,9 @@
+D:\SharpOS\Tools\DiskImageUpdater\bin\Release\disk-image-updater.exe
+D:\SharpOS\Tools\DiskImageUpdater\bin\Release\disk-image-updater.pdb
+D:\SharpOS\Tools\DiskImageUpdater\bin\Release\Mono.GetOptions.dll
+D:\SharpOS\Tools\DiskImageUpdater\obj\Release\DiskImageUpdater.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\DiskImageUpdater\obj\Release\DiskImageUpdater.csproj.CopyComplete
+D:\SharpOS\Tools\DiskImageUpdater\obj\Release\disk-image-updater.exe
+D:\SharpOS\Tools\DiskImageUpdater\obj\Release\disk-image-updater.pdb
+D:\SharpOS\build\disk-image-updater.exe
+D:\SharpOS\build\disk-image-updater.pdb

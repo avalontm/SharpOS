@@ -1,0 +1,6 @@
+D:\SharpOS\Tools\VSUpdate\bin\Release\VSUpdate.exe
+D:\SharpOS\Tools\VSUpdate\bin\Release\VSUpdate.pdb
+D:\SharpOS\Tools\VSUpdate\obj\Release\VSUpdate.csproj.AssemblyReference.cache
+D:\SharpOS\Tools\VSUpdate\obj\Release\VSUpdate.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\VSUpdate\obj\Release\VSUpdate.exe
+D:\SharpOS\Tools\VSUpdate\obj\Release\VSUpdate.pdb

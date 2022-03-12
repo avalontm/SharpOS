@@ -1,0 +1,4004 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpOS.Kernel</name>
+    </assembly>
+    <members>
+        <member name="M:SharpOS.Kernel.ADC.X86.Architecture.CheckCompatibility">
+            			<summary>
+            				Checks for compatibility with the current system, using 
+            				the most well-supported method possible. 
+            			</summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.Architecture.GetPlatform">
+            			<summary>
+            				Gets the ADC platform identifier.
+            			</summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.Barrier.Enter">
+            <summary>
+            	Starts the barrier, no other threads can run untill Exit is called
+            </summary>
+            <remarks>
+            	This function should be made "inline" by the AOT
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.Barrier.Exit">
+            <summary>
+            	Ends the barrier
+            </summary>
+            <remarks>
+            	This function should be made "inline" by the AOT
+            </remarks>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.BootControl">
+            <summary>
+            Contains all system power functionality 
+            </summary>
+            <remarks>
+            Change the name to reflect something more than just booting?
+            (after all, sleeping/resuming etc. fit well together with the rest of the functions)
+            </remarks>
+            <todo>
+            We probably need "Advanced Configuration and Power Interface (ACPI)" support..
+            ...eventually anyway
+            </todo>	
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.BootControl.PowerOff">
+            <summary>
+            Powers down the system.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.BootControl.Freeze">
+            <summary>
+            Freezes the system. 
+            Usually used after a crash to display information after which the user 
+            can turn of the machine.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.BootControl.Sleep">
+            <summary>
+            Puts the system into sleep mode.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.BootControl.Reboot">
+            <summary>
+            Reboot the system.
+            We can reset the system, oddly enough, through the keyboard IO port
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.GDT">
+            <summary>
+            The Global Descriptor Table (GDT) is a data structure used by Intel x86-family 
+            processors starting with the 80286 in order to define the characteristics of the
+            various memory areas used during program execution, for example the base address, 
+            the size and access privileges like executability and writability. 
+            These memory areas are called segments in Intel terminology.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.IDT">
+            <summary>
+            The Interrupt Descriptor Table (IDT) is a data structure used by the x86 architecture 
+            to implement an interrupt vector table. The IDT is used by the processor to determine 
+            the correct response to interrupts and exceptions.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.DMA_StatusRegister">
+            <summary>
+            0008 r DMA channel 0-3 status register
+            	bit 7 = 1 channel 3 request
+            	bit 6 = 1 channel 2 request
+            	bit 5 = 1 channel 1 request
+            	bit 4 = 1 channel 0 request
+            	bit 3 = 1 channel terminal count on channel 3
+            	bit 2 = 1 channel terminal count on channel 2
+            	bit 1 = 1 channel terminal count on channel 1
+            	bit 0 = 1 channel terminal count on channel 0
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.DMA_CommandRegister">
+            <summary>
+            0008 w DMA channel 0-3 command register
+            	bit 7	= 1 DACK sense active high
+            			= 0 DACK sense active low
+            	bit 6	= 1 DREQ sense active high
+            			= 0 DREQ sense active low
+            	bit 5	= 1 extended write selection
+            			= 0 late write selection
+            	bit 4	= 1 rotating priority
+            			= 0 fixed priority
+            	bit 3	= 1 compressed timing
+            			= 0 normal timing
+            	bit 2	= 1 enable controller
+            			= 0 enable memory-to-memory
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.DMA_ChannelMaskRegister">
+            <summary>
+            000A r/w DMA channel 0-3 mask register
+            	bit 7-3	= 0 reserved
+            	bit 2	= 0 clear mask bit
+            			= 1 set mask bit
+            	bit 1-0	= 00 channel 0 select
+            			= 01 channel 1 select
+            			= 10 channel 2 select
+            			= 11 channel 3 select
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.DMA_ModeRegister">
+            <summary>
+            000B w DMA channel 0-3 mode register
+            	bit 7-6	= 00 demand mode
+            			= 01 single mode
+            			= 10 block mode
+            			= 11 cascade mode
+            	bit 5	= 0 address increment select
+            			= 1 address decrement select
+            	bit 3-2	= 00 verify operation
+            			= 01 write to memory
+            			= 10 read from memory
+            			= 11 reserved
+            	bit 1-0	= 00 channel 0 select
+            			= 01 channel 1 select
+            			= 10 channel 2 select
+            			= 11 channel 3 select
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.PIT_mode_control_port">
+            <summary>
+            0043 r/w PIT mode port, control word register for counters 0-2
+            <list>
+            	<item>bit 7-6	= 00 counter 0 select
+            					= 01 counter 1 select (not PS/2)
+            					= 10 counter 2 select</item>
+            	<item>bit 5-4	= 00 counter latch command
+            					= 01 read/write counter bits 0-7 only
+            					= 10 read/write counter bits 8-15 only
+            					= 11 read/write counter bits 0-7 first, then 8-15</item>
+            	<item>bit 3-1	= 000 mode 0 select
+            					= 001 mode 1 select - programmable one shot
+            					= x10 mode 2 select - rate generator
+            					= x11 mode 3 select - square wave generator
+            					= 100 mode 4 select - software triggered strobe
+            					= 101 mode 5 select - hardware triggered strobe</item>
+            	<item>bit 0		= 0 binary counter 16 bits
+            					= 1 BCD counter</item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.KB_data_port">
+            <summary>
+            KB controller data port or keyboard input buffer (ISA, EISA)
+            	should only be read from after status port bit0 = 1
+            	should only be written to if status port bit1 = 0
+            	keyboard commands (data also goes to port 0060):
+            <list>
+            	<item>E6 sngl set mouse scaling to 1:1</item>
+            	<item>E7 sngl set mouse scaling to 2:1</item>
+            	<item>E8 dbl set mouse resolution 
+            		(00h = 1/mm,01h = 2/mm,02h = 4/mm,03h = 8/mm)</item>
+            	<item>E9 sngl get mouse information
+            		read two status bytes:
+            		<list>
+            			<item>byte 0
+            				<list>
+            					<item>bit 7 unused</item>
+            					<item>bit 6 remote rather than stream mode</item>
+            					<item>bit 5 mouse enabled</item>
+            					<item>bit 4 scaling set to 2:1</item>
+            					<item>bit 3 unused</item>
+            					<item>bit 2 left button pressed</item>
+            					<item>bit 1 unused</item>
+            					<item>bit 0 right button pressed</item>
+            				</list></item>
+            			<item>byte 1: resolution</item>
+            		</list>
+            	</item>
+            	<item>ED dbl set/reset mode indicators Caps Num Scrl
+            		bit 2 = CapsLk, bit 1 = NumLk, bit 0 = ScrlLk</item>
+            	<item>EE sngl diagnostic echo. returns EE.</item>
+            	<item>EF sngl NOP (No OPeration). reserved for future use</item>
+            	<item>F0 dbl get/set scan code set
+            		<list>
+            			<item>00h get current set</item>
+            			<item>01h scancode set 1 (except Type 2 ctrlr)</item>
+            			<item>02h scancode set 2 (default)</item>
+            			<item>03h scancode set 3</item>
+            		</list>
+            	</item>
+            	<item>F2 sngl read keyboard ID (read two ID bytes)</item>
+            	<item>F2 sngl read mouse ID (read two ID bytes)</item>
+            	<item>F3 dbl set typematic rate/delay</item>
+            	<item>F3 dbl set mouse sample rate in reports per second</item>
+            	<item>F4 sngl enable keyboard</item>
+            	<item>F4 sngl enable mouse</item>
+            	<item>F5 sngl disable keyboard. set default parameters</item>
+            	<item>F5 sngl disable mouse, set default parameters</item>
+            	<item>F6 sngl set default parameters</item>
+            	<item>F7 sngl [MCA] set all keys to typematic (scancode set 3)</item>
+            	<item>F8 sngl [MCA] set all keys to make/release</item>
+            	<item>F9 sngl [MCA] set all keys to make only</item>
+            	<item>FA sngl [MCA] set all keys to typematic/make/release</item>
+            	<item>FB sngl [MCA] set al keys to typematic</item>
+            	<item>FC dbl [MCA] set specific key to make/release</item>
+            	<item>FD dbl [MCA] set specific key to make only</item>
+            	<item>FE sngl resend last scancode</item>
+            	<item>FF sngl perform internal power-on reset function</item>
+            	<item>FF sngl reset mouse</item>
+            	</list>
+            	Note: must issue command D4h to port 64h first to access
+            	mouse functions
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.KB_controller_read_status">
+            <summary>
+            KB controller read status (ISA, EISA)
+             <list>
+            		<item>bit 7 = 1 parity error on transmission from keyboard</item>
+            		<item>bit 6 = 1 receive timeout</item>
+            		<item>bit 5 = 1 transmit timeout</item>
+            		<item>bit 4 = 0 keyboard inhibit</item>
+            		<item>bit 3 = 1 data in input register is command
+            					  0 data in input register is data</item>
+            		<item>bit 2 system flag status: 0=power up or reset 1=selftest OK</item>
+            		<item>bit 1 = 1 input buffer full (input 60/64 has data for 8042)</item>
+            		<item>bit 0 = 1 output buffer full (output 60 has data for system)</item>
+             </list>
+             KB controller read status (MCA)
+             <list>
+            		<item>bit 7 = 1 parity error on transmission from keyboard</item>
+            		<item>bit 6 = 1 general timeout</item>
+            		<item>bit 5 = 1 mouse output buffer full</item>
+            		<item>bit 4 = 0 keyboard inhibit</item>
+            		<item>bit 3 = 1 data in input register is command
+            					  0 data in input register is data</item>
+            		<item>bit 2 system flag status: 0=power up or reset 1=selftest OK</item>
+            		<item>bit 1 = 1 input buffer full (input 60/64 has data for 804x)</item>
+            		<item>bit 0 = 1 output buffer full (output 60 has data for system)</item>
+             </list>
+            	KB controller read status by Compaq
+             <list>
+            		<item>bit 7 = 1 parity error detected (11-bit format only). If an
+            						error is detected, a Resend command is sent to the
+            						keyboard once only, as an attempt to recover.</item>
+            		<item>bit 6 = 1 receive timeout. transmission didnt finish in 2mS.</item>
+            		<item>bit 5 = 1 transmission timeout error</item>
+            		<item>bit 5,6,7 cause
+            				  1 0 0 No clock
+            				  1 1 0 Clock OK, no response
+            				  1 0 1 Clock OK, parity error</item>
+            		<item>bit 4 = 0 security lock engaged</item>
+            		<item>bit 3 = 1 data in OUTPUT register is command
+            					  0 data in OUTPUT register is data</item>
+            		<item>bit 2 system flag status: 0=power up or reset 1=soft</item>
+             </list>
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.KB_controller_commands">
+            <summary>
+            0064 w KB controller input buffer (ISA, EISA)
+            KB controller commands (data goes to port 0060):
+            <list>
+            	<item>20		read	read byte zero of internal RAM, this is the
+            					last KB command send to 804x
+            					Compaq	Put current command byte on port 0060
+            					command structure:
+            					<list>
+            						<item>bit 7 reserved</item>
+            						<item>bit 6 = 1 convert KB codes to 8086 scan codes</item>
+            						<item>bit 5 = 0 use 11-bit codes, 1=use 8086 codes</item>
+            						<item>bit 4 = 0 enable keyboard, 1=disable keyboard</item>
+            						<item>bit 3 = 1 ignore security lock state</item>
+            						<item>bit 2 this bit goes into bit2 status reg.</item>
+            						<item>bit 1 = 0 reserved</item>
+            						<item>bit 0 = 1 generate int. when output buffer full</item>
+            					</list>
+            	</item>
+            	<item>21-3F	read	reads the byte specified in the lower 5 bits of
+            					the command in the 804x's internal RAM</item>
+            	<item>60-7F	dbl		writes the data byte to the address specified in
+            					the 5 lower bits of the command.
+            					Alternate description KB IO command 60 summary:
+            					<list>
+            						<item>bit7 = 0 reserved</item>
+            						<item>bit6 = IBM PC compatibility mode</item>
+            						<item>bit5 = IBM PC mode</item>
+            						<item>bit4 = disable kb</item>
+            						<item>bit3 = inhibit override</item>
+            						<item>bit2 = system flag</item>
+            						<item>bit1 = 0 reserved</item>
+            						<item>bit0 = enableoutput buffer full interrupt</item>
+            					</list>
+            	</item>
+            	<item>60		Compaq	Load new command (60 to [64], command to [60])</item>
+            	<item>A1		Compaq	unknown speedfunction ??</item>
+            	<item>A2		Compaq	unknown speedfunction ??</item>
+            	<item>A3		Compaq	Enable system speed control</item>
+            	<item>A4		MCA		check if password installed</item>
+            	<item>A4		Compaq	Toggle speed</item>
+            	<item>A5		MCA		load password</item>
+            	<item>A5		Compaq	Special reed. the 8042 places the real values
+            					of port 2 except for bits 4 and 5 wich are given
+            					a new definition in the output buffer. No output
+            					buffer full is generated.
+            					<list>
+            						<item>if bit 5 = 0, a 9-bit keyboard is in use</item>
+            						<item>if bit 5 = 1, an 11-bit keyboard is in use</item>
+            						<item>if bit 4 = 0, outp-buff-full interrupt disabled</item>
+            						<item>if bit 4 = 1, output-buffer-full int. enabled</item>
+            					</list>
+            	</item>
+            	<item>A6		MCA		check password</item>
+            	<item>A6		Compaq	unknown speedfunction ??</item>
+            	<item>A7		MCA		disable mouse port</item>
+            	<item>A8		MCA		enable mouse port</item>
+            	<item>A9		MCA		test mouse port</item>
+            	<item>AA		sngl	initiate self-test. will return 55 to data port
+            					Compaq	Initializes ports 1 and 2, disables the keyboard
+            					and clears the buffer pointers. It then places
+            					55 in the output buffer.</item>
+            </list>
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.MDA_CRT_index_register">
+            <summary>
+            03B4 w MDA CRT index register (EGA/VGA)
+            		selects which register (0-11h) is to be accessed through 3B5
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.MDA_CRT_data_register">
+            <summary>
+            03B5 r/w MDA CRT data register (EGA/VGA)
+            		selected by port 3B4. registers C-F may be read
+             <list>
+            		<item>00 horizontal total</item>
+            		<item>01 horizontal displayed</item>
+            		<item>02 horizontal sync position</item>
+            		<item>03 horizontal sync pulse width</item>
+            		<item>04 vertical total</item>
+            		<item>05 vertical displayed</item>
+            		<item>06 vertical sync position</item>
+            		<item>07 vertical sunc pulse width</item>
+            		<item>08 interlace mode</item>
+            		<item>09 maximum scan lines</item>
+            		<item>0A cursor start</item>
+            		<item>0B cursor end</item>
+            		<item>0C start address high</item>
+            		<item>0D start address low</item>
+            		<item>0E cursor location high</item>
+            		<item>0F cursor location low</item>
+            		<item>10 light pen high</item>
+            		<item>11 light pen low</item>
+             </list>
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.MDA_mode_control_register">
+            <summary>
+            03B8 r/w MDA mode control register
+             <list>
+            		<item>bit 7 not used</item>
+            		<item>bit 6 not used</item>
+            		<item>bit 5 enable blink</item>
+            		<item>bit 4 not used</item>
+            		<item>bit 3 video enable</item>
+            		<item>bit 2 not used</item>
+            		<item>bit 1 not used</item>
+            		<item>bit 0 high resolution mode</item>
+             </list>
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.MDA_CRT_status_register">
+            <summary>
+            03BA r CRT status register EGA/VGA: input status 1 register
+             <list>
+            		<item>bit 7 (MSD says) if this bit changes within 8000h reads then</item>
+            		<item>bit 6-4 = 000 = adapter is Hercules or compatible</item>
+            		<item>001 = adapter is Hercules+</item>
+            		<item>101 = adapter is Hercules InColor</item>
+            		<item>else: adapter is unknown</item>
+            		<item>bit 3 black/white video</item>
+            		<item>bit 2-1 reserved</item>
+            		<item>bit 0 horizontal drive</item>
+             </list>
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Transmit_Receive_Buffer">
+            <summary>
+            W: Transmitter holding buffer
+            R: Receiver buffer
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Interrupt_Enable_Register">
+            <summary>
+            R/W: Interrupt enable buffer
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Interrupt_Identification_Register">
+            <summary>
+            R: Interrupt identification register
+            W: FIFO control register
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Line_Control_Register">
+            <summary>
+            R/W: Line control register
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Modem_Control_Register">
+            <summary>
+            R/W: Modem control register
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Line_Status_Register">
+            <summary>
+            R: Line status register
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Modem_Status_Register">
+            <summary>
+            R: Modem status register
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.ADC.X86.IO.Port.UART_Scratch_Register">
+            <summary>
+            R/W: Scratch register
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.Pager">
+            <summary>
+            Hardware specific paging layer
+            </summary>
+            <todo>
+            - Add support for PAE (Physical Address Extensions) so we can have 64 gb of virtual memory
+            - Add support for the paging exceptions that can occur
+            - Initialisation should be done in 'Architecture'
+            </todo>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.Pager.MapPage(System.Void*,System.Void*,System.UInt32,SharpOS.Kernel.Memory.PageAttributes)">
+            			<summary>
+            				Changes the mapping of an individual page.
+            			</summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.PIC">
+            <summary>
+            Programmable Interrupt Controller (PIC)
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.PIT">
+            <summary>
+            Periodic Interrupt Timer (PIT)
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.X86.RTC">
+            <summary>
+            Real Time Clock
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.RTC.Read(System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            Reads the time from CMOS
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:SharpOS.Kernel.ADC.X86.TextMode" -->
+        <member name="M:SharpOS.Kernel.ADC.X86.TextMode.Setup">
+            <summary>
+            ADC portion of the TextMode class setup. For X86, this function
+            first locates the addresses of CRT controllers using color (EGA/CGA)
+            or alternatively monochrome (MDA) display standards. Finally it
+            determines the width and height of the text buffer.
+            </summary>
+            <reference>http://www.cknow.com/refs/VideoDisplayStandards.html</reference>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.TextMode.ClearToEndOfLine">
+            <summary>
+            Clear to end of line
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.X86.TextMode.ScrollPage(System.Int32)">
+            <summary>
+            Scrolls the text on the screen
+            </summary>
+            <param name="value">Positive value is down, negative is up</param>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Architecture.Setup">
+            <summary>
+            Does architecture-specific initialization. 
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Architecture.CheckCompatibility">
+            <summary>
+            Checks for compatibility with the current system, using 
+            the most well-supported method possible. 
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Architecture.GetCPU">
+            <summary>
+            Gets a string representing the CPU type which can be 
+            displayed to the user.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Barrier.Enter">
+            <summary>
+            	Starts the barrier, no other threads can run untill Exit is called
+            </summary>
+            <remarks>
+            	This function should be made "inline" by the AOT
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Barrier.Exit">
+            <summary>
+            	Ends the barrier
+            </summary>
+            <remarks>
+            	This function should be made "inline" by the AOT
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.BootControl.PowerOff">
+            <summary>
+            Powers down the system.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.BootControl.Freeze">
+            <summary>
+            Freezes the system. 
+            Usually used after a crash to display information after which the user 
+            can turn of the machine.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.BootControl.Sleep">
+            <summary>
+            Puts the system into sleep mode.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.BootControl.Reboot">
+            <summary>
+            Reboot the system.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.Pager">
+            <summary>
+            Provides the architecture-specific implementation of
+            memory paging.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.Setup(System.UInt32,System.Byte*,System.UInt32,SharpOS.Kernel.Memory.PageAllocator.Errors*)">
+            <summary>
+            Initializes paging, placing paging control data at <paramref name="pagemap" />.
+            </summary>
+            <returns>
+            0 on success or PageAllocator.Errors.UnusablePageControlBuffer if
+            <paramref name="pagemap" /> or <paramref name="pagemapLen" /> are outside
+            of the constraints provided to the memory manager by
+            <see cref="M:GetMemoryRequirements" />.
+            </returns>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.GetGranularitySize(System.UInt32,SharpOS.Kernel.Memory.PageAllocator.Errors*)">
+            <summary>
+            Returns the native size of a page at the <paramref name="granularity" /> 
+            granularity where 0 is the `atomic' granularity used by the memory
+            manager to represent the smallest allocatable block.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.GetBigGranularity">
+            <summary>
+            Gets the largest page granularity provided by the ADC layer.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.GetMemoryRequirements(System.UInt32,SharpOS.Kernel.ADC.PagingMemoryRequirements*)">
+            <summary>
+            Used by the memory manager to determine what memory must be 
+            reserved for paging control data.
+            </summary>
+            <returns>
+            A <see cref="T:SharpOS.Kernel.ADC.PagingMemoryRequirements" /> structure containing 
+            the amount of atomic memory pages required and an optional 
+            pointer specifying the buffer that must be used for paging
+            control data (Start). If the processor supports dynamic placement of
+            paging structures, Start must be a null pointer.
+            </returns>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.Enable(SharpOS.Kernel.Memory.PageAllocator.Errors*)">
+            <summary>
+            Causes paging to be enabled and active after this call.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.MapPage(System.Void*,System.Void*,System.UInt32,SharpOS.Kernel.Memory.PageAttributes)">
+            <summary>
+            Changes the mapping of the virtual page <paramref name="page" /> to the
+            physical page <paramref name="phys_page" /> at the specified 
+            <paramref name="granularity" />. 
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.GetPointerGranularity(System.Void*)">
+            <summary>
+            Returns the paging granularity of the pointer <paramref name="page" />.
+            </summary>
+            <returns>
+            The granularity level or -1 if the pointer is not page-aligned.
+            </returns>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.Pager.PageAlign(System.Void*,System.UInt32)">
+            <summary>
+            Aligns the pointer <paramref name="ptr" /> to the page granularity
+            specified by <paramref name="granularity" />. This method asserts 
+            that the granularity is within the allowed range for the ADC layer
+            in use.
+            <returns>
+            A pointer which is aligned to the page boundaries of the given
+            granularity.
+            </returns>
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.ADC.RTC">
+            <summary>
+            Real Time Clock
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.RTC.Read(System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Int32@)">
+            <summary>
+            Reads the time from CMOS
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Setup">
+            <summary>
+            Performs architecture-specific setup.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteChar(System.Byte)">
+            <summary>
+            Writes the ASCII character <paramref name="value" /> to the screen.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.MoveTo(System.Int32,System.Int32)">
+            <summary>
+            Move the internal cursor to the specified position,
+            but do not update the cursor position displayed on
+            the screen. This saves time and reduces flickering
+            of the display while doing complex screen changes.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.SetCursorSize(System.Byte,System.Byte)">
+            <summary>
+            Change the hardware cursor size.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.SetCursor(System.Int32,System.Int32)">
+            <summary>
+            Change the internal cursor position (like MoveTo()), then
+            update the cursor displayed on the screen.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.GetCursor(System.Int32@,System.Int32@)">
+            <summary>
+            Retrieve the position of the cursor and the size of the screen simultaneously.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.ClearScreen">
+            <summary>
+            Clear the screen.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.ClearToEndOfLine">
+            <summary>
+            Clear to end of line
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.ScrollPage(System.Int32)">
+            <summary>
+            Scroll the screen by <paramref name="value" /> lines.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteByte(System.Byte)">
+            <summary>
+            Write <paramref name="value" /> as a decimal value.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteHex(System.Byte)">
+            <summary>
+            Write <paramref name="value" /> as a hexadecimal value
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.SetAttributes(SharpOS.Kernel.ADC.TextColor,SharpOS.Kernel.ADC.TextColor)">
+            <summary>
+            Change the attributes used for subsequent Write() calls.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.RestoreAttributes">
+            <summary>
+            Restores the last set of screen attributes
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.SaveAttributes">
+            <summary>
+            Saves the current set of screen attributes
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Write(System.Byte*,System.Int32)">
+            <summary>
+            Common Write() implementation. Serves Write(CString8*), Write(PString8*), and
+            Write(byte*).
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.RefreshCursor">
+            <summary>
+            Makes sure the cursor displayed on the screen is
+            in sync with the internal cursor (used to position
+            new Write() data).
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Write(System.String)">
+            <summary>
+            Writes a 16-bit string to the screen.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Write(System.Int32)">
+            <summary>
+            Writes an Int32 to the screen in decimal format.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Write(System.Int32,System.Boolean)">
+            <summary>
+            Writes an Int32 to the screen, either in decimal or
+            hexadecimal format.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Write(System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Writes an Int32 to the screen, either in decimal or
+            hexadecimal format.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.Write(System.Boolean)">
+            <summary>
+            Writes an bool to the screen
+            <param name="value">boolean value to write</param>
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine">
+            <summary>
+            Writes a newline to the screen.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(System.String)">
+            <summary>
+            Writes a string to the screen, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(SharpOS.Kernel.Foundation.CString8*)">
+            <summary>
+            Writes a CString8* to the screen, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(SharpOS.Kernel.Foundation.PString8*)">
+            <summary>
+            Writes a CString8* to the screen, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(System.Byte*)">
+            <summary>
+            Writes a CString8* to the screen, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Writes the string <paramref name="message" /> to the screen,
+            then the Int32 <paramref name="value" />, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(SharpOS.Kernel.Foundation.CString8*,System.Int32,System.Boolean)">
+            <summary>
+            Writes the string <paramref name="message" /> to the screen,
+            then the Int32 <paramref name="value" />, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(SharpOS.Kernel.Foundation.PString8*,System.Int32,System.Boolean)">
+            <summary>
+            Writes the string <paramref name="message" /> to the screen,
+            then the Int32 <paramref name="value" />, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteLine(System.Byte*,System.Int32,System.Boolean)">
+            <summary>
+            Writes the string <paramref name="message" /> to the screen,
+            then the Int32 <paramref name="value" />, followed by a newline.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteSubstring(System.String,System.Int32,System.Int32)">
+            <summary>
+            Writes <paramref name="len" /> characters of the string
+            <paramref name="message" /> to the screen, starting with
+            the character at index <paramref name="offset" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteSubstring(SharpOS.Kernel.Foundation.CString8*,System.Int32,System.Int32)">
+            <summary>
+            Writes <paramref name="len" /> characters of the string
+            <paramref name="message" /> to the screen, starting with
+            the character at index <paramref name="offset" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteSubstring(SharpOS.Kernel.Foundation.PString8*,System.Int32,System.Int32)">
+            <summary>
+            Writes <paramref name="len" /> characters of the string
+            <paramref name="message" /> to the screen, starting with
+            the character at index <paramref name="offset" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteSubstring(System.Byte*,System.Int32,System.Int32)">
+            <summary>
+            Writes <paramref name="len" /> characters of the string
+            <paramref name="message" /> to the screen, starting with
+            the character at index <paramref name="offset" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteNumber(System.Int32)">
+            <summary>
+            Writes a number to the screen in decimal format.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.ADC.TextMode.WriteNumber(System.Int32,System.Boolean)">
+            <summary>
+            Writes a number to the screen, either in decimal or
+            hexadecimal format.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.DeviceSystem.PCI.PCIDevice.#ctor(SharpOS.Kernel.DeviceSystem.PCI.IPCIController,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Create a new PCIDevice instance at the selected PCI address
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.DeviceSystem.ISerialDevice">
+            TODO: Add API to set Serial settings, like baud rate, parity, etc.
+        </member>
+        <member name="M:SharpOS.Kernel.FileSystem.GenericPartition.#ctor(System.UInt32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpOS.Kernel.FileSystem.GenericPartition"/> class.
+            </summary>
+            <param name="index">The index.</param>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.Bootable">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SharpOS.Kernel.FileSystem.GenericPartition"/> is bootable.
+            </summary>
+            <value><c>true</c> if bootable; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.Index">
+            <summary>
+            Gets the partition index.
+            </summary>
+            <value>The partition index.</value>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.StartLBA">
+            <summary>
+            Gets or sets the start LBA.
+            </summary>
+            <value>The start LBA.</value>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.EndLBA">
+            <summary>
+            Gets the end LBA.
+            </summary>
+            <value>The end LBA.</value>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.TotalBlocks">
+            <summary>
+            Gets or sets the total blocks.
+            </summary>
+            <value>The total blocks.</value>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.PartitionType">
+            <summary>
+            Gets or sets the type of the partition.
+            </summary>
+            <value>The type of the partition.</value>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.GenericPartition.GUID">
+            <summary>
+            Gets or sets the GUID.
+            </summary>
+            <value>The GUID.</value>
+        </member>
+        <member name="T:SharpOS.Kernel.FileSystem.SettingsBase">
+            <summary>
+            File system settings base class for formatting purposes.
+            </summary>
+            <remarks>
+            This base class holds properties and data members common to most file systems. A specialized
+            derived class should be created for specific file systems and its type should be returned from
+            IFileSystemService.SettingsType to allow mkfs style commands to automate most processing.
+            </remarks>
+        </member>
+        <member name="F:SharpOS.Kernel.FileSystem.SettingsBase.label">
+            <summary>
+            The volume label.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.FileSystem.SettingsBase.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="!:FSSettings"/>.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.FileSystem.SettingsBase.Label">
+            <summary>
+            Gets or sets the volume label.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.BinaryTool.ReadPrefixedString(System.Void*,System.Byte*,System.Int32,System.Int32*)">
+            <summary>
+            Reads a length-prefixed string as generated by a .NET BinaryReader class.
+            This involves first reading a variable-size 7-bit integer, then the string,
+            placing it in the provided buffer. If the buffer is not large enough, the
+            'error' parameter is set to 1. The string is still readable in 'buffer',
+            but it is shortened. To prevent this, you can call Read7BitEncodedInt first
+            and size the buffer appropriately. Returns the amount of bytes that the
+            length-prefixed string took up (including the bytes that contained the length),
+            so it can be skipped when reading more data. The 'buffer' will be null-terminated,
+            even if it is too small. The returned value is not reduced if the buffer is too
+            small (IE, it represents the entire string, not the shortened version).
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ByteString.Concat(System.Byte*,System.Int32,System.Byte*,System.Int32)">
+            <summary>
+            Concatenates <paramref name="count" /> bytes of
+            the string in buffer <paramref name="src" />
+            to the end of the string in buffer
+            <paramref name="buffer" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.__Test1">
+            <summary>
+            Runs tests on the int to string conversions.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.ToAscii(System.Char)">
+            <summary>
+            Converts character to ascii representation.  If unicode 
+            character is outside the range of an Ascii character then 
+            Convert.NonAsciiCharacter is returned.
+            </summary>
+            <param name="value">Character to be converted</param>
+            <returns>Ascii representation of the character</returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.ToAscii(System.Char[])">
+            <summary>
+            Converts the array of characters to ascii representation.  
+            If unicode character is outside the range of an Ascii 
+            character then Convert.NonAsciiCharacter is returned in its 
+            place.
+            </summary>
+            <param name="value">Array of Characters to Converted
+            </param>
+            <returns>Array of byte containing Ascii representation
+            </returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.ToAscii(System.String)">
+            <summary>
+            Converts string to its ascii representation.  If unicode 
+            character is outside the range of an Ascii character then 
+            Convert.NonAsciiCharacter is returned in its place.
+            </summary>
+            <param name="value">string to be converted</param>
+            <returns>Array of byte containing Ascii representation
+            </returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.ToCString8(System.Char)">
+            <summary>
+            Converts character to an ascii c like string representation.
+            If unicode character is outside the range of an Ascii
+            character then Convert.NonAsciiCharacter is returned.
+            </summary>
+            <param name="value">char to be converted</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.ToCString8(System.Char[])">
+            <summary>
+            Converts the array of characters to an ascii c like string 
+            representation.  If unicode character is outside the range	
+            of an Ascii character then Convert.NonAsciiCharacter is 
+            returned in its place.
+            </summary>
+            <param name="value">Array of Characters to Converted
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Convert.ToCString8(System.String)">
+            <summary>
+            Converts string to its ascii representation terminating with
+            null.  If unicode character is outside the range of an Ascii
+            character then Convert.NonAsciiCharacter is returned in its 
+            place.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SharpOS.Kernel.Foundation.CString8">
+            <summary>
+            Represents a C-style (null-terminated) string.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Foundation.CString8.Length">
+            <summary>
+            Gets the length of the string.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Foundation.CString8.Pointer">
+            <summary>
+            Gets the null-terminated byte pointer for the string.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.GetChar(System.Int32,System.Boolean)">
+            <summary>
+            If <paramref name="boundsCheck" /> is true, makes sure
+            <paramref name="index" /> is within bounds, then gets the
+            character at <paramref name="index" /> from the string..
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Int32,SharpOS.Kernel.Foundation.CString8*,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Int32,SharpOS.Kernel.Foundation.PString8*,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Int32,System.String,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Int32,System.Byte*,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(SharpOS.Kernel.Foundation.CString8*,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(SharpOS.Kernel.Foundation.PString8*,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.String,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Byte*,System.Int32,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(SharpOS.Kernel.Foundation.CString8*,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(SharpOS.Kernel.Foundation.PString8*,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.String,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Byte*,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(SharpOS.Kernel.Foundation.CString8*)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(SharpOS.Kernel.Foundation.PString8*)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.String)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Compare(System.Byte*)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.CString8.Trim">
+            <summary>
+            Generates a new CString8 instance that is identical to this one,
+            minus any leading or trailing whitespace
+            </summary>
+            <returns>A pointer to a new CString8 instance</returns>
+        </member>
+        <member name="T:SharpOS.Kernel.Foundation.GregorianCalendar">
+            <summary>
+            An implementation of the Gregorian calender that can translate between
+            SharpOS timestamps and Gregorian dates, stored in the universal Time
+            structure.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.GetDayOfWeekString(System.UInt32)">
+            <summary>
+            Returns the string representing the given day of the week
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.GetMonthString(System.UInt32)">
+            <summary>
+            Gets the string representing the given month.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.AddStrings(SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Adds the correct day of week and month strings to the Time instance.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.AddSeconds(SharpOS.Kernel.Foundation.Time,System.Int32)">
+            <summary>
+            Adds the given amount of seconds to the Time instance.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.IsLeapYear(System.UInt32)">
+            <summary>
+            Determines whether the year is a leap year
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.GetYearDays(System.UInt32)">
+            <summary>
+            Gets the amount of days in the given year.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.EncodeTimestamp(SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Creates a 100-nanosecond granularity timestamp from the epoch (January 1st, 0001).
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.GetDayOfWeek(SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Gets the day of the week for the given time.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.ICalendar.DecodeTimestamp(System.UInt64,SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Decodes the timestamp into the given Time instance.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Foundation.PString8">
+            <summary>
+            Represents a length-prefixed C-style string (null-terminated). This type
+            can be used as a string buffer,
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Wrap(System.Void*,System.Int32)">
+            <summary>
+            Wraps a data buffer into a PString8 pointer and initializes
+            the Capacity field to <paramref name="bufferSize" /> minus
+            the size of the PString8 structure. <paramref name="bufferSize" />
+            should be the entire size of the allocation.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(System.Byte*,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Internal common implementation of Concat(). The <paramref name="strLen" />
+            parameter is the length of the string in buffer <paramref name="str" />,
+            determined using the fastest possible method for the string type. This
+            causes slightly faster performance for string types that store the length
+            of the string (as opposed to null termination).
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Foundation.PString8.Length">
+            <summary>
+            Gets the length of the string.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Foundation.PString8.Capacity">
+            <summary>
+            Gets the capacity of the string.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.GetChar(System.Int32,System.Boolean)">
+            <summary>
+            If <paramref name="boundsCheck" /> is true, makes sure
+            <paramref name="index" /> is in bounds, then gets the
+            character <paramref name="index" /> from the string.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Foundation.PString8.Pointer">
+            <summary>
+            Gets the null-terminated byte* pointer.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.ConcatLine">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(SharpOS.Kernel.Foundation.PString8*,System.Int32,System.Int32)">
+            <summary>
+            Concatenates from <paramref name="str" /> the
+            characters at indices <paramref name="offset" /> to
+            <paramref name="offset" /> + <paramref name="len" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(SharpOS.Kernel.Foundation.CString8*,System.Int32,System.Int32)">
+            <summary>
+            Concatenates from <paramref name="str" /> the
+            characters at indices <paramref name="offset" /> to
+            <paramref name="offset" /> + <paramref name="len" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(System.String,System.Int32,System.Int32)">
+            <summary>
+            Concatenates from <paramref name="str" /> the
+            characters at indices <paramref name="offset" /> to
+            <paramref name="offset" /> + <paramref name="len" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(SharpOS.Kernel.Foundation.PString8*)">
+            <summary>
+            Concatenates <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(SharpOS.Kernel.Foundation.CString8*)">
+            <summary>
+            Concatenates <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(System.String)">
+            <summary>
+            Concatenates <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Concat(System.Byte)">
+            <summary>
+            Concatenates <paramref name="character" />
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(System.Byte*,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(SharpOS.Kernel.Foundation.PString8*,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(SharpOS.Kernel.Foundation.CString8*,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(System.String,System.Int32)">
+            <summary>
+            Compares <paramref name="count" /> characters of the
+            string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(SharpOS.Kernel.Foundation.CString8*)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(SharpOS.Kernel.Foundation.PString8*)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.PString8.Compare(System.String)">
+            <summary>
+            Compares the string against <paramref name="str" />.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Testcase.RecordTestcases">
+            <summary>
+            When true, records testcases for viewing later.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Testcase.PrintTestcases">
+            <summary>
+            When true, prints testcases to the console when they are performed.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Foundation.Testcase.TestRecord">
+            <summary>
+            A record of a test that was done previously.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Testcase.TestRecord.Next">
+            <summary>
+            Please do not use this directly, instead use
+            TestCase.GetNextTest ().
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Testcase.Records">
+            <summary>
+            Tracks the previous tests when RecordTestcases is true.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.Dispose">
+            <summary>
+            Clears all testcase records from memory.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.GetTestCount">
+            <summary>
+            Gets the amount of test records that arve currently held.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.GetTest(System.Int32)">
+            <summary>
+            Gets a test by it's numerical index.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.GetLastTest">
+            <summary>
+            Gets the last test record that is held.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.GetFirstTest">
+            <summary>
+            Gets the first test record, which can be used to iterate over all entries.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.GetNextTest(SharpOS.Kernel.Foundation.Testcase.TestRecord*)">
+            <summary>
+            Iterates over the record list.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Testcase.Test(System.Boolean,System.String,System.String)">
+            <summary>
+            Performs a new test, optionally printing it and/or recording it in memory.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Foundation.Time">
+            <summary>
+            A universal calendar entry. This can describe a date in any
+            supported calendar type.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Foundation.Time.Ticks">
+            <summary>
+            Calculates the UTC timestamp of this Time structure, using the appropriate Calendar
+            implementation.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Foundation.Timestamp">
+            <summary>
+            A structure representing an unsigned 64-bit timestamp counted in 100-nanosecond blocks,
+            with an Epoch of January 1st, 0001.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.MaxValue">
+            <summary>
+            The maximum timestamp value.
+            DOCFIXME: and what date is that?
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.MinValue">
+            <summary>
+            The minimum timestamp value, representing 00:00:00, January 1st, 0001.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.EpochYear">
+            <summary>
+            This year is 1 AD (anno domini)
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.MillisecondUnit">
+            <summary>
+            How many 100-nanosecond blocks in a millisecond.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.SecondUnit">
+            <summary>
+            How many 100-nanosecond blocks in a second.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.MinuteUnit">
+            <summary>
+            How many 100-nanosecond blocks in a minute.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.HourUnit">
+            <summary>
+            How many 100-nanosecond blocks in an hour.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Timestamp.DayUnit">
+            <summary>
+            How many 100-nanosecond blocks in a day.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Clock.secondChunk">
+            <summary>
+            Tracks how much of the current second has passed so far.
+            This is a count of timer fires, so when it becomes
+            equal to Timer.GetFrequency (), a second has passed.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Foundation.Clock.HardwareSyncTicks">
+            <summary>
+            The interval of time (in 100-nanosecond ticks) between synchronizations from the
+            hardware clock to the software clock. (default 600000000 ticks is 1 minute).
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.GetHardwareTime(SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Retrieves the current hardware time. If this is not possible,
+            this method returns false.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.GetHardwareTimestamp">
+            <summary>
+            Retrieves the current hardware time as a timestamp. If this is not possible,
+            this method returns 0.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.Setup">
+            <summary>
+            Initializes the system clock. First the hardware time is read
+            and stored as the boot time and current time. The times are
+            stored as 64-bit unsigned integers with 100-nanosecond ticks
+            since the epoch (January 1, 0001, 00:00:00). A handler is added
+            to the system timer event which updates the current time and
+            handles periodic synchronization with the hardware time. The
+            amount added to the current time per timer fire is relevant
+            to the frequency reportedly used by the system timer.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.UpdateClock(System.UInt32)">
+            <summary>
+            The clock maintenance handler, which is run per system timer fire.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.GetCurrentTime(SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Retrieves the current system clock  time.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.GetBootTime(SharpOS.Kernel.Foundation.Time)">
+            <summary>
+            Retrieves the system boot time.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.ResetNanostamp">
+            <summary>
+            Resets the nanostamp counter.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Foundation.Clock.GetNanostamp">
+            <summary>
+            Returns the amount of nanoseconds since the
+            last ResetNanostamp() call. This value is limited
+            in precision to the frequency of the system timer.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Shell.Commands.CommandExecutionContext.CREATE">
+            <summary>
+            Allocates and returns an uninitialized CommandExecutionContext
+            </summary>
+            <param name="originalCommandLine"></param>
+            <returns>A newly allocated CommandExecutionContext</returns>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.AccessCheckFlags">
+            <summary>
+            Flags for the <see cref="!:SharpOS.Kernel.Vfs.VirtualFileSystem.AccessCheck"/> function.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessCheckFlags.None">
+            <summary>
+            No special access checking flags.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessCheckFlags.NoThrow">
+            <summary>
+            Do not throw an exception for failed access checks. The return value is false for failed access checks the caller
+            must take care of properly handling the result of the AccessCheck in order to prevent security breaches.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.AccessCheck.Perform(SharpOS.Kernel.Vfs.DirectoryEntry,SharpOS.Kernel.Vfs.AccessMode,SharpOS.Kernel.Vfs.AccessCheckFlags)">
+            <summary>
+            This method performs an access check on the given dentry.
+            </summary>
+            <param name="dentry">The directory entry to perform the access check on.</param>
+            <param name="mode">The access mode to check.</param>
+            <param name="flags">Flags, which control the operation.</param>
+            <returns>True if the caller has the requested permissions on the given directory entry.</returns>
+            <exception cref="T:System.Security.SecurityException">This exception is thrown for failed access checks unless the caller has specified AccessCheckFlags.NoThrow.</exception>
+            <remarks>
+            This function only checks the permissions on the dentry itself. It does not traverse the directory tree towards the root 
+            to check the entire tree. Tree checking is automatically performed by Lookup and related functions.
+            </remarks>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.AccessMode">
+            <summary>
+            The access mode enumeration is used to determine accessibility of the file by the immediate caller. <see cref="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Access(System.String,SharpOS.Kernel.Vfs.AccessMode)"/> for more information.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessMode.Traverse">
+            <summary>
+            Check if the caller has the right to traverse the resource.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessMode.Read">
+            <summary>
+            Check if the caller has read access to the resource.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessMode.Write">
+            <summary>
+            Check if the caller has write access to the resource.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessMode.Delete">
+            <summary>
+            Check if the caller has delete access to the resoure.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessMode.Execute">
+            <summary>
+            Check if the caller has execute permissions for the resource.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.AccessMode.Exists">
+            <summary>
+            Check if the named resource is available.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryEntry.currentDirectory">
+            <summary>
+            Holds the current directory of the current thread.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryEntry.inode">
+            <summary>
+            References the inode that belongs to this name.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryEntry.name">
+            <summary>
+            The name of this directory entry.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryEntry.parent">
+            <summary>
+            Ptr to the parent directory entry. 
+            </summary>
+            <remarks>
+            If _parent == this, we're at the root directory entry.
+            </remarks>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryEntry.child">
+            <summary>
+            Sorted list of child directory entries of this name.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryEntry.next">
+            <summary>
+            Sorted list of child directory entries of this name.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.DirectoryEntry.Release">
+            <summary>
+            Releases the DirectoryEntry from the parent DirectoryEntry. This is *not* a delete operation.
+            </summary>
+            <remarks>
+            This function is used to remove a DirectoryEntry from the cache. Some (networked) file systems may want to use
+            this function to remove "known" directories from the lookup cache when they loose server connection.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.DirectoryEntry.Allocate(SharpOS.Kernel.Vfs.DirectoryEntry,System.String,SharpOS.Kernel.Vfs.IVfsNode)">
+            <summary>
+            Allocates a new DirectoryEntry object for the given settings.
+            </summary>
+            <param name="parent">The parent directory entry.</param>
+            <param name="name">The name of the entry to create.</param>
+            <param name="node">The vfs node referenced by the directory entry.</param>
+            <returns>The allocated directory entry.</returns>
+            <exception cref="T:System.ArgumentNullException">If any one of the parameters is null.</exception>
+            <exception cref="T:System.ArgumentException">If the name is zero-length.</exception>
+            <remarks>
+            This method is used to control the DirectoryEntry allocation and maintain a cache of them. Also used to
+            prevent infinite name allocations.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.DirectoryEntry.AllocateRoot(SharpOS.Kernel.Vfs.IVfsNode)">
+            <summary>
+            Allocates a vfs root directory entry.
+            </summary>
+            <param name="node">The vfs node, which corresponds to the root directory.</param>
+            <returns>The created directory entry.</returns>
+            <exception cref="T:System.ArgumentNullException">The specified node is invalid.</exception>
+            <remarks>
+            This method creates a directory entry, which has some special properties. The first one is, that
+            its parent is itself. This provides for the ability to cd .. on the root to stay on the root.
+            <para/>
+            The next ability is to create specialized root directories to isolate processes from the remainder
+            of the filesystem. Setting a root directory created using this method effectively limits the process
+            to access inside of the newly created namespace.
+            </remarks>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.DirectoryNode">
+            <summary>
+            Represents a basic directory in the VFS namespace.
+            </summary>
+            <remarks>
+            This class can be inherited if necessary to provide specialized
+            directory handling if required.
+            </remarks>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.DirectoryNode.nodes">
+            <summary>
+            Holds all nodes added to the root vfs node.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.DirectoryNode.#ctor(SharpOS.Kernel.Vfs.IFileSystem)">
+            <summary>
+            Initializes a new instance of the DirectoryNode object.
+            </summary>
+            <param name="fs">The filesystem, which owns the node.</param>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.FileSystemFactory.CreateFileSystem(System.String)">
+            <summary>
+            This function iterates all running file system drivers, which have registered themselves 
+            beneath the /system/filesystems and ask them if they can mount this path.			 
+            </summary>
+            <param name="path">The path to the partition</param>
+            <returns></returns>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.IFileSystemService">
+            <summary>
+            Interface, which a filesystem driver must implement.
+            </summary>
+            <remarks>
+            A filesystem driver, which implements this interface should register itself beneath /proc/filesystems
+            to make the filesystem available for mounting and other operations.
+            </remarks>
+        </member>
+        <member name="P:SharpOS.Kernel.Vfs.IFileSystemService.SettingsType">
+            <summary>
+            Retrieves the type of the filesystem settings class to pass to IFileSystemService.Format
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.IFileSystemService.Mount">
+            <summary>
+            Mounts a file system from the specified stream/device.
+            </summary>
+            <param name="path">The path to the device or file, which holds the filesystem to open.</param>
+            <returns>The mounted filesystem.</returns>
+            <remarks>
+            File system implementations should not blindly assume that the block device or file really
+            contain the expected filesystem. An implementation should run some checks for integrity and
+            validity before returning an object implementing IFileSystem.
+            <para/>
+            Also this method should not throw. In contrast to other operating systems, the user will not
+            be forced to know the file system on disk. The file system manager will try all file systems
+            until it finds one, which returns a non-null IFileSystem. So a failure in a mount operation
+            is not considered an exception, but a normal process.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.IFileSystemService.Format(SharpOS.Kernel.FileSystem.SettingsBase)">
+            <summary>
+            Formats the media with the filesystem.
+            </summary>
+            <param name="path">The path of the stream/device to format with the file system.</param>
+            <param name="settings">The settings for the filesystem to create.</param>
+            <returns>The created and mounted filesystem.</returns>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.IVfsNode">
+            <summary>
+            Interface implemented by all VFS nodes.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Vfs.IVfsNode.NodeType">
+            <summary>
+            Returns the type of the node.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.IVfsNode.Create(System.String,SharpOS.Kernel.Vfs.VfsNodeType,System.Object)">
+            <summary>
+            Creates a new filesystem entry of the given name and type.
+            </summary>
+            <param name="name">The name of the filesystem entry to create.</param>
+            <param name="type">The type of the filesystem entry. See remarks.</param>
+            <param name="settings">Potential settings for the file systeme entry.</param>
+            <returns>The created file system node for the requested object.</returns>
+            <exception cref="T:System.NotSupportedException">The specified nodetype is not supported in the filesystem owning the node. See remarks about this.</exception>
+            <exception cref="!:"></exception>
+            <remarks>
+            In theory every filesystem should support any VfsNodeType. Standard objects, such as directories and files are obvious. For other objects however, the
+            file system is encouraged to store the passed settings in a specially marked file and treat these files as the appropriate node type. Instances of these
+            objects can be retrieved using VfsObjectFactory.Create(settings).
+            <para />
+            Access rights do not need to be checked by the node implementation. They have been already been checked by the VirtualFileSystem itself.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.IVfsNode.Lookup(System.String)">
+            <summary>
+            Requests the IVfsNode to perform a lookup on its children.
+            </summary>
+            <param name="name">The name of the item to find.</param>
+            <returns>The vfs node, which represents the item. If there's no node with the specified name, the return value is null.</returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.IVfsNode.Open(System.IO.FileAccess,System.IO.FileShare)">
+            <summary>
+            Opens the IVfsNode and returns an object capable of doing something smart with the IVfsNode.
+            </summary>
+            <returns>An object instance, which represents the node.</returns>
+            <remarks>
+            This method is central to the entire VFS. It allows for interaction with filesystem entries in a way not possible
+            with classical operating systems. The result of this function is heavily dependant on the item represented by the node, e.g.
+            for a classic file (stream of bytes) the result of this method call would be a System.IO.Stream. For a device the result would
+            be the driver object, for a directory it would be a System.IO.DirectoryInfo object, for kernel objects the respective object such
+            as System.Threading.EventWaitHandle, System.Threading.Mutex, System.Threading.Thread, System.Diagnostics.Process etc. Note: The object
+            retrieved can be closed by the respective methods on the returned object. There's no close functionality on the IVfsNode itself.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.IVfsNode.Delete(SharpOS.Kernel.Vfs.IVfsNode,SharpOS.Kernel.Vfs.DirectoryEntry)">
+            <summary>
+            Called to delete a child from a directory.
+            </summary>
+            <remarks>
+            This function deletes a child IVfsNode from a directory. If child is a directory, it will be empty
+            before this call is executed. It is recommended to include a debug sanity check though. If the file
+            system needs to know the name of the child to delete, it can retrieve it from <see cref="P:SharpOS.Kernel.Vfs.DirectoryEntry.Name"/>.
+            </remarks>
+            <param name="child">The IVfsNode interface of the child.</param>
+            <param name="dentry">The DirectoryEntry of the child.</param>
+            <exception cref="T:System.NotSupportedException">The object does not support removal this way. There's most likely an object specific API to remove this IVfsNode.</exception>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.NodeBase">
+            <summary>
+            Provides a default implementation for INodes. A filesystem implementation
+            may choose to derive from BasicNode to receive a default implementation of
+            the interface.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.NodeBase.fs">
+            <summary>
+            Holds the filesystem of the node.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.NodeBase.type">
+            <summary>
+            Holds the type of the IVfsNode represented by this instance.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.PathResolutionFlags">
+            <summary>
+            Flags, which control the operation of the <see cref="T:SharpOS.Kernel.Vfs.PathResolver"/>.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolutionFlags.None">
+            <summary>
+            No flags passed to control lookup.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolutionFlags.DoNotThrowNotFoundException">
+            <summary>
+            Do not throw file not found exceptions along the way. Lookup functions return null instead.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolutionFlags.SymLinkLookupSafe">
+            <summary>
+            Indicates flags, which can be passed to nested symbolic link lookups.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolutionFlags.RetrieveParent">
+            <summary>
+            Indicates that only the parent directory of the path is returned and the name of the final directory entry is returned back in path.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolutionFlags.DoNotFollowSymbolicLinks">
+            <summary>
+            Specifies if Lookup functions follow symbolic links.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.PathResolver">
+            <summary>
+            Implements path resolution functionality for the <see cref="T:SharpOS.Kernel.Vfs.VirtualFileSystem"/>.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolver.MAX_SYMLINKS_TO_FOLLOW">
+            <summary>
+            Controls the maximum number of symbolic links to follow while resolving a directory path.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolver.rootDirectory">
+            <summary>
+            Reference to the root directory of the system.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolver.currentDirectory">
+            <summary>
+            Reference to the current directory of the system.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.PathResolver.depth">
+            <summary>
+            Remaining lookup depth for symbolic links.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.PathResolver.Resolve(SharpOS.Kernel.Vfs.DirectoryEntry,System.String@)">
+            <summary>
+            Performs a standard path lookup.
+            </summary>
+            <param name="rootDirectory">The root directory.</param>
+            <param name="path">The path to resolve.</param>
+            <returns>The directory entry of the resolved path.</returns>
+            <exception cref="T:System.Security.SecurityException">The caller does not have access to the path or a component. For example the caller does not have the right to traverse the path.</exception>
+            <exception cref="T:System.IO.PathTooLongException">The path is too long to traverse. This can be the result of circular symbolic links in the path.</exception>
+            <exception cref="T:System.IO.FileNotFoundException">The file or folder path not found.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">A path component was not found.</exception>
+            <remarks>
+            This call my result in other exceptions not specified in the above list. Other exceptions can be thrown by IVfsNode implementations, which are visited during the traversal
+            process. For example a network file system node may throw an exception, if the server is unreachable.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.PathResolver.Resolve(SharpOS.Kernel.Vfs.DirectoryEntry,System.String@,SharpOS.Kernel.Vfs.PathResolutionFlags)">
+            <summary>
+            Performs a path lookup obeying to the passed flags.
+            </summary>
+            <param name="rootDirectory">The root directory.</param>
+            <param name="path">The path to resolve.</param>
+            <param name="flags">Controls aspects of the path lookup process.</param>
+            <returns>The directory entry of the resolved path.</returns>
+            <exception cref="T:System.Security.SecurityException">The caller does not have access to the path or a component. For example the caller does not have the right to traverse the path.</exception>
+            <exception cref="T:System.IO.PathTooLongException">The path is too long to traverse. This can be the result of circular symbolic links in the path.</exception>
+            <exception cref="T:System.IO.FileNotFoundException">The file or folder path was not found. This exception can be prevented by specifying PathResolutionFlags.DoNotThrowNotFoundException.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">A path component was not found. This exception can be prevented by specifying PathResolutionFlags.DoNotThrowNotFoundException.</exception>
+            <remarks>
+            This call my result in other exceptions not specified in the above list. Other exceptions can be thrown by IVfsNode implementations, which are visited during the traversal
+            process. For example a network file system node may throw an exception, if the server is unreachable.
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.PathResolver.Resolve(System.String@,SharpOS.Kernel.Vfs.PathResolutionFlags)">
+            <summary>
+            Performs an iterative lookup of the given path starting from the root and obeying to the specified flags.
+            </summary>
+            <param name="path">The path to lookup. This can be a relative or absolute path. Path.DirectorySeparatorChar or Path.AltDirectorySeparatorChar are valid delimiters.</param>
+            <param name="root">The root directory to start lookup from.</param>
+            <param name="flags">The lookup flags, which control the lookup process.</param>
+            <returns>The directory entry of the resolved path.</returns>
+            <exception cref="T:System.Security.SecurityException">The caller does not have access to the path or a component. For example the caller does not have the right to traverse the path.</exception>
+            <exception cref="T:System.IO.PathTooLongException">The path is too long to traverse. This can be the result of circular symbolic links in the path.</exception>
+            <exception cref="T:System.IO.FileNotFoundException">The path or a component was not found. This exception can be prevented by specifying PathResolutionFlags.DoNotThrowNotFoundException.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">A path component was not found. This exception can be prevented by specifying PathResolutionFlags.DoNotThrowNotFoundException.</exception>
+            <remarks>
+            This call may result in other exceptions not specified in the above list. Other exceptions can be thrown by IVfsNode implementations, which are visited during the traversal
+            process. For example a network file system node may throw an exception, if the server is unreachable.
+            </remarks>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.SymbolicLinkNode.target">
+            <summary>
+            The target of the symbolic link.
+            </summary>
+        </member>
+        <member name="P:SharpOS.Kernel.Vfs.SymbolicLinkNode.Target">
+            <summary>
+            Retrieves the target path of the symbolic link.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.VfsNodeType">
+            <summary>
+            Specifies the type of the node in the virtual file system.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VfsNodeType.Unknown">
+            <summary>
+            An unknown node type.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VfsNodeType.File">
+            <summary>
+            Represents a classic file (represented by a System.IO.Stream or derived class.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VfsNodeType.Directory">
+            <summary>
+            Represents a folder (aka directory) in the file system.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VfsNodeType.SymbolicLink">
+            <summary>
+            A symbolic link in the (virtual) filesystem.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VfsNodeType.Device">
+            <summary>
+            Represents a basic device node.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Vfs.VirtualFileSystem">
+            <summary>
+            Implements the virtual file system service for the kernel.
+            </summary>
+            <remarks>
+            The virtual file system service provides the root '/' naming namespace for
+            other nodes and services.
+            </remarks>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VirtualFileSystem.rootDirectory">
+            <summary>
+            The virtual root directory.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Vfs.VirtualFileSystem.rootNode">
+            <summary>
+            Root entry of the virtual file system.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Setup">
+            <summary>
+            Initializes a new instance of the virtual file system.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Access(System.String,SharpOS.Kernel.Vfs.AccessMode)">
+            <summary>
+            Checks if the caller has access to the inode 
+            </summary>
+            <param name="path">The resource to check permissions for.</param>
+            <returns>True if the requested access mode combination is available to the immediate caller. If any one requested access mode is not available, the result is false.</returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Create(System.String,SharpOS.Kernel.Vfs.VfsNodeType,System.Object,System.IO.FileAccess,System.IO.FileShare)">
+            <summary>
+            Creates a new node in the (virtual) filesystem.
+            </summary>
+            <param name="path">The path to create.</param>
+            <param name="type">The type of the node to create.</param>
+            <param name="settings">Settings used to initialize the node.</param>
+            <param name="access">Requests the specified access modes on the created object.</param>
+            <param name="share">Requests the specified sharing settings on the object.</param>
+            <returns>The created filesystem object.</returns>
+            <remarks>
+            This function creates new nodes in the virtual filesystem. In contrast to *nix this call
+            creates all node types, e.g. files, directories, devices and more. Specific types may 
+            require additional settings, which are specified in a settings object passed as the third
+            parameter.
+            </remarks>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpOS.Kernel.Vfs.VirtualFileSystem.ChangeDirectory(System.String)" -->
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Delete(System.String)">
+            <summary>
+            Deletes the named node from the filesystem.
+            </summary>
+            <param name="path">The path, which identifies a node.</param>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Mount(System.String,System.String)">
+            <summary>
+            Mounts a new file system.
+            </summary>
+            <param name="source">The source of the filesystem. This is usually a device name, but can also be another directory.</param>
+            <param name="target">The path including the name of the mount point, where to mount the new filesystem.</param>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Stat(System.String)">
+            <summary>
+            Retrieves a 
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Vfs.VirtualFileSystem.Unmount(System.String)">
+            <summary>
+            Unmounts the filesystem rooted at the given path.
+            </summary>
+            <param name="path">The path identifying the filesystem to unmount.</param>
+            <remarks>
+            In contrast to Posix this does not have to be the root directory of the filesystem. Any path in the filesystem will unmount the 
+            entire tree.
+            </remarks>
+            FIXME: Which exceptions can be thrown.
+            FIXME: How is the current directory handled? What if it is inside the FS tree being unmounted.
+            FIXME: We need to check the FS tree for in use status and throw an InvalidOperationException?
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpOS.Kernel.CommandLine.IndexOfArgument(System.String)" -->
+        <member name="T:SharpOS.Kernel.Console">
+            <summary>
+            Provides basic console services
+            </summary>
+            <todo>
+            TODO
+            - typing in command
+            	- move left/right in command
+            	- insert overwrite
+            - add capslock/numlock support
+            	just like we're now passing a 'shifted' boolean value to translate,
+            	should we also pass a 'numlock' boolean value to translate?
+            	maybe this needs to be generalized somehow (eventually)?
+            	what if a keyboard manifacturer has programmable keys/modes etc.?
+            	capslock is also not exactly the same as shift, because shift+1 is not the same as capslock+1
+            </todo>
+        </member>
+        <member name="F:SharpOS.Kernel.Diagnostics.MaxMessageLength">
+            <summary>
+            Defines the maximum allowed length of diagnostic messages
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpOS.Kernel.Diagnostics.Panic(System.String,SharpOS.Kernel.KernelStage,SharpOS.Kernel.KernelError)" -->
+        <member name="F:SharpOS.Kernel.EntryModule.MaxEventHandlers">
+            <summary>
+            Defines the maximum event handler slots for each event.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.EntryModule.MaxKeyMapNameLength">
+            <summary>
+            Defines the maximum length of key map names
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.EntryModule.MaxTextAttributeSlots">
+            <summary>
+            Defines the amount of nested TextMode.SaveAttributes() are possible.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.EntryModule.MaxThreads">
+            <summary>
+            Defines the amount of threads that are possible.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.EntryModule.BootEntry(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            The kernel entry point. This function is called after static
+            constructors and initialization are done (currenly doen by Assembly.cs::AddEntryPoint().
+            </summary>
+            <param name="magic">
+            Magic number of the multiboot loader.
+            </param>
+            <param name="pointer">
+            Pointer to the Multiboot 'info' structure.
+            </param>
+            <param name="kernelStart">
+            The address of the first byte reserved for the kernel.
+            </param>
+            <param name="kernelEnd">
+            The address of the last byte reserved for the kernel.
+            </param>
+        </member>
+        <member name="M:SharpOS.Kernel.EntryModule.SetKernelStage(SharpOS.Kernel.KernelStage)">
+            <summary>
+            Sets the operational stage reported by the kernel.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.EntryModule.GetKernelStage">
+            <summary>
+            Gets the current operational stage of the kernel.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.EntryModule.Halt">
+            <summary>
+            Performs shutdown process, then calls ADC halt
+            function.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.EntryModule.Reboot">
+            <summary>
+            Performs shutdown process, then calls ADC reboot
+            function.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.KernelError.SchedulerQueueEmpty">
+            <summary>
+            Scheduler Queue is empty and this was not expected
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.Setup">
+            <summary>
+            Locates the archive of built-in keymaps, parses the
+            user-specified keymap from the kernel command line,
+            and installs a default keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetBuiltinKeyMap(System.Byte*)">
+            <summary>
+            Gets the address of a builtin keymap included in the kernel
+            via the keymap archive resource in SharpOS.Kernel.dll. The
+            archive is generated by the SharpOS keymap compiler.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="nameLen">The name len.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetBuiltinKeyMap(SharpOS.Kernel.Foundation.CString8*)">
+            <summary>
+            Gets the address of a builtin keymap included in the kernel
+            via the keymap archive resource in SharpOS.Kernel.dll. The
+            archive is generated by the SharpOS keymap compiler.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="nameLen">The name len.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetBuiltinKeyMap(SharpOS.Kernel.Foundation.PString8*)">
+            <summary>
+            Gets the address of a builtin keymap included in the kernel
+            via the keymap archive resource in SharpOS.Kernel.dll. The
+            archive is generated by the SharpOS keymap compiler.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="nameLen">The name len.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetBuiltinKeyMap(System.String)">
+            <summary>
+            Gets the address of a builtin keymap included in the kernel
+            via the keymap archive resource in SharpOS.Kernel.dll. The
+            archive is generated by the SharpOS keymap compiler.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="nameLen">The name len.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetBuiltinKeyMapsCount">
+            <summary>
+            Gets the count of all builtin key maps.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetBuiltinKeyMap(System.Int32)">
+            <summary>
+            Gets the address of a builtin key map, by it's numeric ID. Good
+            for iterating through the list of builtin key maps.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetCurrentKeyMap">
+            <summary>
+            Gets the keymap currently in use.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.SetDirectKeyMap(System.Void*)">
+            <summary>
+            Installs the default and shifted key tables of the given
+            keymap, so that all further keyboard scancodes are
+            converted using the new mapping.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.SetKeyMap(System.Byte*,System.Int32)">
+            <summary>
+            Sets the current keymap to a built-in one specified by
+            <paramref name="name" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.SetKeyMap(SharpOS.Kernel.Foundation.CString8*)">
+            <summary>
+            Sets the current keymap to a built-in one specified by
+            <paramref name="name" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.SetKeyMap(SharpOS.Kernel.Foundation.PString8*)">
+            <summary>
+            Sets the current keymap to a built-in one specified by
+            <paramref name="name" />.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetDefaultTable(System.Void*,System.Int32*)">
+            <summary>
+            Gets the `default' table of the given keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetShiftedTable(System.Void*,System.Int32*)">
+            <summary>
+            Gets the `shifted' table of the given keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetDefaultTable(System.Int32*)">
+            <summary>
+            Gets the `default' table of the installed keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetShiftedTable(System.Int32*)">
+            <summary>
+            Gets the `shifted' table of the installed keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetKeyMask(System.Void*)">
+            <summary>
+            Gets the keymask specified in the given keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetStateBit(System.Void*)">
+            <summary>
+            Gets the state bit specified in the given keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetKeyMask">
+            <summary>
+            Gets the keymask of the installed keymap.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.KeyMap.GetStateBit">
+            <summary>
+            Gets the state bit of the installed keymap.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Multiboot.Header">
+            <summary>
+            The Multiboot header
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Multiboot.MemoryMap">
+            <summary>
+            Memory Map
+            </summary>
+            <remarks>
+            Be careful that the offset 0 is base_addr_low
+            but no size. 
+            </remarks>
+        </member>
+        <member name="T:SharpOS.Kernel.Multiboot.InformationTable">
+            <summary>
+            The Multiboot information
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Memory.PageAllocator">
+            <summary>
+            The PageAllocator class handles physical memory page allocation and provides
+            the OS an interface for memory paging/mapping. The PageAllocator class is
+            portable, making use of the SharpOS.ADC.Pager class to implement platform-
+            specific paging mechanisms.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Kernel.Memory.PageAllocator.ReservedPages">
+            <summary>
+            Reserverd pages is used to reserve pages for system applications
+            like kernel, stack and memory mananger
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Memory.PageAllocator.ReservedPages.Address">
+            <summary>
+            Address of the reserved block
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Memory.PageAllocator.ReservedPages.Size">
+            <summary>
+            Number of pages that are reserved
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Memory.PageAllocator.Errors.UnsupportedGranularity">
+            <summary>
+            The given granularity is not available on this platform, or
+            cannot be specified for the current operation.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Memory.PageAllocator.Errors.NoAttributesForGranularity">
+            <summary>
+            Attributes are not supported for pages of the given granularity.
+            </summary>
+        </member>
+        <member name="F:SharpOS.Kernel.Memory.PageAllocator.Errors.UnusablePageControlBuffer">
+            <summary>
+            The buffer provided by the kernel is insufficiently sized or
+            placed to be used as the mapping control data buffer.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.Setup(System.Byte*,System.UInt32,System.UInt32)">
+            <summary>
+            Initializes page management and paging. Using <see cref="M:SharpOS.Kernel.Memory.PageAllocator.Alloc" />
+            and related management functions before calling this function results
+            in a kernel panic. After this function is called, the
+            <see cref="M:SharpOS.Kernel.Memory.PageAllocator.ReservePage(System.Void*)"/> and <see cref="M:SharpOS.Kernel.Memory.PageAllocator.ReservePageRange(System.Void*,System.UInt32,System.String)" />
+            functions can be used to reserve memory that should not be allocated.
+            You should ensure that no memory allocations have happened between
+            calling this function and reserving memory.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.IsPageFree(System.Void*)">
+            <summary>
+            Checks if a given page is allocated. If the page is
+            allocated, the method returns true. This function
+            starts from the current stack pointer and goes
+            backward.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.IsPageReserved(System.Void*)">
+            <summary>
+            Returns true if the given page is reserved (that is, not available for allocation).
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.Alloc">
+            <summary>
+            Allocates a page of memory. This function returns null when out of memory.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.Dealloc(System.Void*)">
+            <summary>
+            Deallocates the memory page pointed to by <paramref name="page" />.
+            </summary>
+            <param name="page">
+            A pointer which is aligned along the platform's native page boundaries.
+            </param>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.ReservePage(System.Void*)">
+            <summary>
+            Reserves a memory page so that it cannot be allocated using
+            <see cref="M:Alloc()" /> or <see cref="M:RangeAlloc(uint count)" />.
+            </summary>
+            <param name="page">
+            A pointer which is aligned along the platform's native page boundaries.
+            </param>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.ReservePageRange(System.Void*,System.UInt32,System.String)">
+            <summary>
+            Reserves a range of memory pages so that they cannot be allocated using
+            <see cref="M:Alloc()" /> or <see cref="M:RangeAlloc(uint count)" />.
+            </summary>
+            <param name="pageStart">
+            A pointer which is aligned along the platform's native page boundaries.
+            </param>
+            <param name="pages">
+            The amount of pages to reserve.
+            </param>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.MapPage(System.Void*,System.Void*,System.UInt32,SharpOS.Kernel.Memory.PageAttributes)">
+            <summary>
+            Modifies the virtual memory mapping of the given super-page to point to
+            the given physical super page. Both pointers must be aligned along the
+            platform's native super-page boundaries.
+            </summary>
+            <remarks>
+            This function is only available on platforms which can provide super-page
+            mapping. The Intel 386 and later processors support this using the 'page
+            directory', which maps large 4MB sections of memory at a time (via
+            redirection to page tables which contain 4KB blocks).
+            </remarks>
+            <param name="superPage">
+            A pointer aligned along the platform's native super-page boundaries which
+            represents the virtual address to map.
+            </param>
+            <param name="phys_superPage">
+            A pointer aligned along the platform's native super-page boundaries which
+            represents the physical address to point to.
+            </param>
+            <param name="attr">
+            The attributes to apply to the paging table entry for this super-page. If
+            one or more flags given in this parameter are not supported by the current
+            platform, the call will fail, returning false.
+            </param>
+            <returns>
+            Returns true if the map operation completed successfully. Returns false
+            if the platform does not support super-page mapping or one of the flags
+            supplied in <paramref name="attr"/>, or an error occurred.
+            </returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.PtrToPage(System.Void*)">
+            <summary>
+            Gets the page address of a given pointer.
+            </summary>
+            <param name="ptr">The pointer</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.PushFreePage(System.Void*)">
+            <summary>
+            Pushes the free page to the free page stack
+            </summary>
+            <param name="page">The page.</param>
+        </member>
+        <member name="M:SharpOS.Kernel.Memory.PageAllocator.PopFreePage">
+            <summary>
+            Pops the free page from the free page stack
+            </summary>
+            <returns>Pointer to free page.</returns>
+        </member>
+        <member name="M:SharpOS.Kernel.Stubs.CString(System.String)">
+            <summary>
+            Used to statically allocate and initialize a CString8* string.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Stubs.StaticAlloc(System.UInt32)">
+            <summary>
+            Statically allocates a range of bytes.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Stubs.LabelledAlloc(System.String,System.UInt32)">
+            <summary>
+            Statically allocates a range of bytes and gives it
+            the specified label.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Stubs.GetFunctionPointer(System.String)">
+            <summary>
+            Gets the function pointer of the given label. This
+            is a synonym for GetLabelAddress().
+            </summary>
+        </member>
+        <member name="M:SharpOS.Kernel.Stubs.GetLabelAddress(System.String)">
+            <summary>
+            Gets the pointer associated with the given label.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Korlib.Runtime.Metadata">
+            <summary>
+            Base class for aggregated metadata information.
+            NOTE: this has nothing to do with the metadata stored
+            by the AOT, but is only the base class of objects
+            which are constructed by iterating through that
+            information.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Korlib.Runtime.Signature.DecompressValue(System.Byte[],System.Int32@)">
+            <summary>
+            Signatures are compressed when in the blob heap. The compression acts
+            on the integral values in the signature. Values could be 1, 2, or 4 bytes
+            long, where either 7, 14, or 29 bits are used to hold the values respectively.
+            For more information, see ECMA-335, fourth-edition, partition II, section 23.2,
+            page 279.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Korlib.Runtime.SigCustomModifier">
+            <summary>
+            Don't ask me what it's for, k? I don't know yet either!!
+            </summary>
+        </member>
+        <member name="F:SharpOS.Korlib.Runtime.SigCustomModifier.MetadataToken">
+            <summary>
+            Can be "TypeDefEncoded" or "TypeRefEncoded" (straight from the spec)
+            dunno why they didn't just say TypeDefOrRefEncoded.
+            </summary>
+        </member>
+        <member name="T:SharpOS.Korlib.Runtime.SigType">
+            <summary>
+            This represents a "Type" value from a signature
+            </summary>
+        </member>
+        <member name="M:SharpOS.Korlib.Runtime.Runtime.Free(System.Object)">
+            <summary>
+            Immediately frees an object allocated using 'new'.
+            </summary>
+        </member>
+        <member name="M:SharpOS.Korlib.Runtime.Runtime.CallHandler(InternalSystem.Exception,System.Boolean,SharpOS.Korlib.Runtime.ExceptionHandlingClause,System.Int32,System.Int32,System.Void*)">
+            <summary>
+            Calls the handler.
+            </summary>
+            <param name="exception">The exception.</param>
+            <param name="getNewHandler">if set to <c>true</c> [get new handler].</param>
+            <param name="handler">The handler.</param>
+            <param name="i">The i.</param>
+            <param name="clauseIndex">Index of the clause.</param>
+            <param name="callerBP">The caller BP.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpOS.Korlib.Runtime.Runtime.GetExceptionHandler(InternalSystem.Exception,System.Int32@,System.Int32@)">
+            <summary>
+            Gets the exception handler.
+            </summary>
+            <param name="exception">The exception.</param>
+            <param name="start">The start.</param>
+            <param name="end">The end.</param>
+        </member>
+        <member name="T:InternalSystem.Collections.Generic.ICollection`1">
+            <summary>
+            Defines methods to manipulate generic collections.
+            </summary>
+            <typeparam name="T">
+            The type of the elements in the collection.
+            </typeparam>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.ICollection`1.Count">
+            <summary>
+            Gets the number of elements contained in the System.Collections.Generic.ICollection&lt;T&gt;.
+            </summary>
+            <returns>
+            The number of elements contained in the System.Collections.Generic.ICollection&lt;T&gt;.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.ICollection`1.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the System.Collections.Generic.ICollection&lt;T&gt;
+            is read-only.
+            </summary>
+            <returns>
+            true if the System.Collections.Generic.ICollection&lt;T&gt; is read-only; otherwise,
+            false.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.ICollection`1.Add(`0)">
+            <summary>
+            Adds an item to the System.Collections.Generic.ICollection&lt;T&gt;.
+            </summary>
+            <param name="item">
+            The object to add to the System.Collections.Generic.ICollection&lt;T&gt;.
+            </param>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.Generic.ICollection&lt;T&gt; is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.ICollection`1.Clear">
+            <summary>
+            Removes all items from the System.Collections.Generic.ICollection&lt;T&gt;.
+            </summary>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.Generic.ICollection&lt;T&gt; is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.ICollection`1.Contains(`0)">
+             <summary>
+             Determines whether the System.Collections.Generic.ICollection&lt;T&gt; contains
+             a specific value.
+             </summary>
+             <param name="item">
+             The object to locate in the System.Collections.Generic.ICollection&lt;T&gt;.
+             </param>
+            
+             <returns>
+             true if item is found in the System.Collections.Generic.ICollection&lt;T&gt;; otherwise,
+             false.
+             </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.ICollection`1.CopyTo(`0[],System.Int32)">
+            <summary>
+            Copies the elements of the System.Collections.Generic.ICollection&lt;T&gt; to an
+            System.Array, starting at a particular System.Array index.
+            </summary>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.Generic.ICollection&lt;T&gt;. The System.Array must
+            have zero-based indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in array at which copying begins.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            arrayIndex is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            array is multidimensional.-or-arrayIndex is equal to or greater than the
+            length of array.-or-The number of elements in the source System.Collections.Generic.ICollection&lt;T&gt;
+            is greater than the available space from arrayIndex to the end of the destination
+            array.-or-Type T cannot be cast automatically to the type of the destination
+            array.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.ICollection`1.Remove(`0)">
+            <summary>
+            Removes the first occurrence of a specific object from the System.Collections.Generic.ICollection&lt;T&gt;.
+            </summary>
+            <param name="item">
+            The object to remove from the System.Collections.Generic.ICollection&lt;T&gt;.
+            </param>
+            <returns>
+            true if item was successfully removed from the System.Collections.Generic.ICollection&lt;T&gt;;
+            otherwise, false. This method also returns false if item is not found in
+            the original System.Collections.Generic.ICollection&lt;T&gt;.
+            </returns>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.Generic.ICollection&lt;T&gt; is read-only.
+            </exception>
+        </member>
+        <member name="T:InternalSystem.Collections.Generic.IEnumerable`1">
+            <summary>
+            Exposes the enumerator, which supports a simple iteration over a collection
+            of a specified type.
+            </summary>
+            <typeparam name="T">
+            The type of objects to enumerate.
+            </typeparam>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.IEnumerable`1.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            A System.Collections.Generic.IEnumerator&lt;T^gt; that can be used to iterate through
+            the collection.
+            </returns>
+        </member>
+        <member name="T:InternalSystem.Collections.Generic.IEnumerator`1">
+            <summary>
+            Supports a simple iteration over a generic collection.
+            </summary>
+            <typeparam name="T">
+            The type of objects to enumerate.
+            </typeparam>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.IEnumerator`1.Current">
+            <summary>
+            Gets the element in the collection at the current position of the enumerator.
+            </summary>
+            <returns>
+            The element in the collection at the current position of the enumerator.
+            </returns>
+        </member>
+        <member name="T:InternalSystem.Collections.Generic.IList`1">
+            <summary>
+            Represents a collection of objects that can be individually accessed by index.
+            </summary>
+            <typeparam name="T">
+            The type of elements in the list.
+            </typeparam>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.IList`1.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index of the element to get or set.
+            </param>
+            <returns>
+            The element at the specified index.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is not a valid index in the System.Collections.Generic.IList&lt;T^gt;.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The property is set and the System.Collections.Generic.IList&lt;T^gt; is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.IList`1.IndexOf(`0)">
+            <summary>
+            Determines the index of a specific item in the System.Collections.Generic.IList&lt;T^gt;.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.IList&lt;T^gt;.
+            </param>
+            <returns>
+            The index of item if found in the list; otherwise, -1.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.IList`1.Insert(System.Int32,`0)">
+            <summary>
+            Inserts an item to the System.Collections.Generic.IList&lt;T^gt; at the specified
+            index.
+            </summary>
+            <param name="index">
+            The zero-based index at which item should be inserted.
+            </param>
+            <param name="item">
+            The object to insert into the System.Collections.Generic.IList&lt;T^gt;.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is not a valid index in the System.Collections.Generic.IList&lt;T^gt;.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.Generic.IList&lt;T^gt; is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.IList`1.RemoveAt(System.Int32)">
+            <summary>
+            Removes the System.Collections.Generic.IList&lt;T^gt; item at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index of the item to remove.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is not a valid index in the System.Collections.Generic.IList&lt;T^gt;.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.Generic.IList&lt;T^gt; is read-only.
+            </exception>
+        </member>
+        <member name="T:InternalSystem.Collections.Generic.List`1">
+            <summary>
+            Represents a strongly typed list of objects that can be accessed by index.
+            Provides methods to search, sort, and manipulate lists.
+            </summary>
+            <typeparam name="T">
+            The type of elements in the list.
+            </typeparam>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.#ctor">
+            <summary>
+            Initializes a new instance of the System.Collections.Generic.List&lt;T&gt; class
+            that is empty and has the default initial capacity.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.#ctor(InternalSystem.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Initializes a new instance of the System.Collections.Generic.List&lt;T&gt; class
+            that contains elements copied from the specified collection and has sufficient
+            capacity to accommodate the number of elements copied.
+            </summary>
+            <param name="collection">
+            The collection whose elements are copied to the new list.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            collection is null.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the System.Collections.Generic.List&lt;T&gt; class
+            that is empty and has the specified initial capacity.
+            </summary>
+            <param name="capacity">
+            The number of elements that the new list can initially store.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            capacity is less than 0.
+            </exception>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.List`1.Capacity">
+            <summary>
+            Gets or sets the total number of elements the internal data structure can
+            hold without resizing.
+            </summary>
+            <returns>
+            The number of elements that the System.Collections.Generic.List&lt;T&gt; can contain
+            before resizing is required.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            System.Collections.Generic.List&lt;T&gt;.Capacity is set to a value that is less
+            than System.Collections.Generic.List&lt;T&gt;.Count.
+            </exception>
+            <exception cref="T:System.OutOfMemoryException">
+            There is not enough memory available on the system.
+            </exception>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.List`1.Count">
+            <summary>
+            Gets the number of elements actually contained in the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <returns>
+            The number of elements actually contained in the System.Collections.Generic.List&lt;T&gt;.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.Generic.List`1.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index of the element to get or set.
+            </param>
+            <returns>
+            The element at the specified index.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-index is equal to or greater than System.Collections.Generic.List&lt;T&gt;.Count.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Add(`0)">
+            <summary>
+            Adds an object to the end of the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="item">
+            The object to be added to the end of the System.Collections.Generic.List&lt;T&gt;.
+            The value can be null for reference types.
+            </param>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.AddRange(InternalSystem.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Adds the elements of the specified collection to the end of the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="collection">
+            The collection whose elements should be added to the end of the System.Collections.Generic.List&lt;T&gt;.
+            The collection itself cannot be null, but it can contain elements that are
+            null, if type T is a reference type.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            collection is null.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Clear">
+            <summary>
+            Removes all elements from the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Contains(`0)">
+             <summary>
+             Determines whether an element is in the System.Collections.Generic.List&lt;T&gt;.
+             </summary>
+            
+             <param name="item">
+             The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+             can be null for reference types.
+             </param>
+            
+             <returns>
+             true if item is found in the System.Collections.Generic.List&lt;T&gt;; otherwise,
+             false.
+             </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.CopyTo(`0[])">
+            <summary>
+            Copies the entire System.Collections.Generic.List&lt;T&gt; to a compatible one-dimensional
+            array, starting at the beginning of the target array.
+            </summary>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.Generic.List&lt;T&gt;. The System.Array must have
+            zero-based indexing.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            The number of elements in the source System.Collections.Generic.List&lt;T&gt; is
+            greater than the number of elements that the destination array can contain.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.CopyTo(`0[],System.Int32)">
+            <summary>
+            Copies the entire System.Collections.Generic.List&lt;T&gt; to a compatible one-dimensional
+            array, starting at the specified index of the target array.
+            </summary>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.Generic.List&lt;T&gt;. The System.Array must have
+            zero-based indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in array at which copying begins.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            arrayIndex is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            arrayIndex is equal to or greater than the length of array.-or-The number
+            of elements in the source System.Collections.Generic.List&lt;T&gt; is greater than
+            the available space from arrayIndex to the end of the destination array.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.CopyTo(System.Int32,`0[],System.Int32,System.Int32)">
+            <summary>
+            Copies a range of elements from the System.Collections.Generic.List&lt;T&gt; to
+            a compatible one-dimensional array, starting at the specified index of the
+            target array.
+            </summary>
+            <param name="index">
+            The zero-based index in the source System.Collections.Generic.List&lt;T&gt; at
+            which copying begins.
+            </param>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.Generic.List&lt;T&gt;. The System.Array must have
+            zero-based indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in array at which copying begins.
+            </param>
+            <param name="count">
+            The number of elements to copy.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-arrayIndex is less than 0.-or-count is less than
+            0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index is equal to or greater than the System.Collections.Generic.List&lt;T&gt;.Count
+            of the source System.Collections.Generic.List&lt;T&gt;.-or-arrayIndex is equal
+            to or greater than the length of array.-or-The number of elements from index
+            to the end of the source System.Collections.Generic.List&lt;T&gt; is greater than
+            the available space from arrayIndex to the end of the destination array.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <returns>
+            A System.Collections.Generic.IEnumerator&lt;T&gt; for the System.Collections.Generic.List&lt;T&gt;.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.GetRange(System.Int32,System.Int32)">
+            <summary>
+            Creates a shallow copy of a range of elements in the source System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="index">
+            The zero-based System.Collections.Generic.List&lt;T&gt; index at which the range
+            starts.
+            </param>
+            <param name="count">
+            The number of elements in the range.
+            </param>
+            <returns>
+            A shallow copy of a range of elements in the source System.Collections.Generic.List&lt;T&gt;.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-count is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not denote a valid range of elements in the System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.IndexOf(`0)">
+            <summary>
+            Searches for the specified object and returns the zero-based index of the
+            first occurrence within the entire System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <returns>
+            The zero-based index of the first occurrence of item within the entire System.Collections.Generic.List&lt;T&gt;,
+            if found; otherwise, –1.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.IndexOf(`0,System.Int32)">
+            <summary>
+            Searches for the specified object and returns the zero-based index of the
+            first occurrence within the range of elements in the System.Collections.Generic.List&lt;T&gt;
+            that extends from the specified index to the last element.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the search.
+            </param>
+            <returns>
+            The zero-based index of the first occurrence of item within the range of
+            elements in the System.Collections.Generic.List&lt;T&gt; that extends from index
+            to the last element, if found; otherwise, –1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.IndexOf(`0,System.Int32,System.Int32)">
+            <summary>
+            Searches for the specified object and returns the zero-based index of the
+            first occurrence within the range of elements in the System.Collections.Generic.List&lt;T&gt;
+            that starts at the specified index and contains the specified number of elements.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the search.
+            </param>
+            <param name="count">
+            The number of elements in the section to search.
+            </param>
+            <returns>
+            The zero-based index of the first occurrence of item within the range of
+            elements in the System.Collections.Generic.List&lt;T&gt; that starts at index and
+            contains count number of elements, if found; otherwise, –1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.Generic.List&lt;T&gt;.-or-count
+            is less than 0.-or-startIndex and count do not specify a valid section in the
+            System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Insert(System.Int32,`0)">
+            <summary>
+            Inserts an element into the System.Collections.Generic.List&lt;T&gt; at the specified
+            index.
+            </summary>
+            <param name="index">
+            The zero-based index at which item should be inserted.
+            </param>
+            <param name="item">
+            The object to insert. The value can be null for reference types.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-index is greater than System.Collections.Generic.List&lt;T&gt;.Count.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.InsertRange(System.Int32,InternalSystem.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Inserts the elements of a collection into the System.Collections.Generic.List&lt;T&gt;
+            at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index at which the new elements should be inserted.
+            </param>
+            <param name="collection">
+            The collection whose elements should be inserted into the System.Collections.Generic.List&lt;T&gt;.
+            The collection itself cannot be null, but it can contain elements that are
+            null, if type T is a reference type.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            collection is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-index is greater than System.Collections.Generic.List&lt;T&gt;.Count.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.LastIndexOf(`0)">
+            <summary>
+            Searches for the specified object and returns the zero-based index of the
+            last occurrence within the entire System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <returns>
+            The zero-based index of the last occurrence of item within the entire the
+            System.Collections.Generic.List&lt;T&gt;, if found; otherwise, –1.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.LastIndexOf(`0,System.Int32)">
+            <summary>
+            Searches for the specified object and returns the zero-based index of the
+            last occurrence within the range of elements in the System.Collections.Generic.List&lt;T&gt;
+            that extends from the first element to the specified index.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the backward search.
+            </param>
+            <returns>
+            The zero-based index of the last occurrence of item within the range of elements
+            in the System.Collections.Generic.List&lt;T&gt; that extends from the first element
+            to index, if found; otherwise, –1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.LastIndexOf(`0,System.Int32,System.Int32)">
+            <summary>
+            Searches for the specified object and returns the zero-based index of the
+            last occurrence within the range of elements in the System.Collections.Generic.List&lt;T&gt;
+            that contains the specified number of elements and ends at the specified
+            index.
+            </summary>
+            <param name="item">
+            The object to locate in the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the backward search.
+            </param>
+            <param name="count">
+            The number of elements in the section to search.
+            </param>
+            <returns>
+            The zero-based index of the last occurrence of item within the range of elements
+            in the System.Collections.Generic.List&lt;T&gt; that contains count number of elements
+            and ends at index, if found; otherwise, –1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.Generic.List&lt;T&gt;.-or-count
+            is less than 0.-or-startIndex and count do not specify a valid section in the
+            System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Remove(`0)">
+            <summary>
+            Removes the first occurrence of a specific object from the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="item">
+            The object to remove from the System.Collections.Generic.List&lt;T&gt;. The value
+            can be null for reference types.
+            </param>
+            <returns>
+            true if item is successfully removed; otherwise, false. This method also
+            returns false if item was not found in the System.Collections.Generic.List&lt;T&gt;.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.RemoveAt(System.Int32)">
+            <summary>
+            Removes the element at the specified index of the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="index">
+            The zero-based index of the element to remove.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-index is equal to or greater than System.Collections.Generic.List&lt;T&gt;.Count.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.RemoveRange(System.Int32,System.Int32)">
+            <summary>
+            Removes a range of elements from the System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+            <param name="index">
+            The zero-based starting index of the range of elements to remove.
+            </param>
+            <param name="count">
+            The number of elements to remove.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-count is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not denote a valid range of elements in the System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Reverse">
+            <summary>
+            Reverses the order of the elements in the entire System.Collections.Generic.List&lt;T&gt;.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.Reverse(System.Int32,System.Int32)">
+            <summary>
+            Reverses the order of the elements in the specified range.
+            </summary>
+            <param name="index">
+            The zero-based starting index of the range to reverse.
+            </param>
+            <param name="count">
+            The number of elements in the range to reverse.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than 0.-or-count is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not denote a valid range of elements in the System.Collections.Generic.List&lt;T&gt;.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.ToArray">
+            <summary>
+            Copies the elements of the System.Collections.Generic.List&lt;T&gt; to a new array.
+            </summary>
+            <returns>
+            An array containing copies of the elements of the System.Collections.Generic.List&lt;T&gt;.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.Generic.List`1.TrimExcess">
+            <summary>
+            Sets the capacity to the actual number of elements in the System.Collections.Generic.List&lt;T&gt;,
+            if that number is less than a threshold value.
+            </summary>
+        </member>
+        <member name="T:InternalSystem.Collections.ArrayList">
+            <summary>
+            Implements the System.Collections.IList interface using an array whose size
+            is dynamically increased as required.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.#ctor">
+            <summary>
+            Initializes a new instance of the System.Collections.ArrayList class that
+            is empty and has the default initial capacity.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.#ctor(InternalSystem.Collections.ICollection)">
+            <summary>
+            Initializes a new instance of the System.Collections.ArrayList class that
+            contains elements copied from the specified collection and that has the same
+            initial capacity as the number of elements copied.
+            </summary>
+            <param name="collection">
+            The System.Collections.ICollection whose elements are copied to the new list.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            collection is null.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the System.Collections.ArrayList class that
+            is empty and has the specified initial capacity.
+            </summary>
+            <param name="capacity">
+            The number of elements that the new list can initially store.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            capacity is less than zero.
+            </exception>
+        </member>
+        <member name="P:InternalSystem.Collections.ArrayList.Capacity">
+            <summary>
+            Gets or sets the number of elements that the System.Collections.ArrayList
+            can contain.
+            </summary>
+            <returns>
+            The number of elements that the System.Collections.ArrayList can contain.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            System.Collections.ArrayList.Capacity is set to a value that is less than
+            System.Collections.ArrayList.Count.
+            </exception>
+            <exception cref="T:System.OutOfMemoryException">
+            There is not enough memory available on the system.
+            </exception>
+        </member>
+        <member name="P:InternalSystem.Collections.ArrayList.Count">
+            <summary>
+            Gets the number of elements actually contained in the System.Collections.ArrayList.
+            </summary>
+            <returns>
+            The number of elements actually contained in the System.Collections.ArrayList.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.ArrayList.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index of the element to get or set.
+            </param>
+            <returns>
+            The element at the specified index.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- index is equal to or greater than System.Collections.ArrayList.Count.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Add(System.Object)">
+            <summary>
+            Adds an object to the end of the System.Collections.ArrayList.
+            </summary>
+            <param name="item">
+            The System.Object to be added to the end of the System.Collections.ArrayList.
+            The item can be null.
+            </param>
+            <returns>
+            The System.Collections.ArrayList index at which the item has been added.
+            </returns>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.AddRange(InternalSystem.Collections.ICollection)">
+            <summary>
+            Adds the elements of an System.Collections.ICollection to the end of the
+            System.Collections.ArrayList.
+            </summary>
+            <param name="collection">
+            The System.Collections.ICollection whose elements should be added to the
+            end of the System.Collections.ArrayList. The collection itself cannot be
+            null, but it can contain elements that are null.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            collection is null.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Clear">
+            <summary>
+            Removes all elements from the System.Collections.ArrayList.
+            </summary>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Contains(System.Object)">
+            <summary>
+            Determines whether an element is in the System.Collections.ArrayList.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <returns>
+            true if item is found in the System.Collections.ArrayList; otherwise, false.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.CopyTo(InternalSystem.Array)">
+            <summary>
+            Copies the entire System.Collections.ArrayList to a compatible one-dimensional
+            System.Array, starting at the beginning of the target array.
+            </summary>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.ArrayList. The System.Array must have zero-based
+            indexing.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            array is multidimensional.-or- The number of elements in the source System.Collections.ArrayList
+            is greater than the number of elements that the destination array can contain.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            The type of the source System.Collections.ArrayList cannot be cast automatically
+            to the type of the destination array.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.CopyTo(InternalSystem.Array,System.Int32)">
+            <summary>
+            Copies the entire System.Collections.ArrayList to a compatible one-dimensional
+            System.Array, starting at the specified index of the target array.
+            </summary>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.ArrayList. The System.Array must have zero-based
+            indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in array at which copying begins.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            arrayIndex is less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            array is multidimensional.-or- arrayIndex is equal to or greater than the
+            length of array.-or- The number of elements in the source System.Collections.ArrayList
+            is greater than the available space from arrayIndex to the end of the destination
+            array.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            The type of the source System.Collections.ArrayList cannot be cast automatically
+            to the type of the destination array.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.CopyTo(System.Int32,InternalSystem.Array,System.Int32,System.Int32)">
+            <summary>
+            Copies a range of elements from the System.Collections.ArrayList to a compatible
+            one-dimensional System.Array, starting at the specified index of the target
+            array.
+            </summary>
+            <param name="index">
+            The zero-based index in the source System.Collections.ArrayList at which
+            copying begins.
+            </param>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.ArrayList. The System.Array must have zero-based
+            indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in array at which copying begins.
+            </param>
+            <param name="count">
+            The number of elements to copy.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- arrayIndex is less than zero.-or- count is less
+            than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            array is multidimensional.-or- index is equal to or greater than the System.Collections.ArrayList.Count
+            of the source System.Collections.ArrayList.-or- arrayIndex is equal to or
+            greater than the length of array.-or- The number of elements from index to
+            the end of the source System.Collections.ArrayList is greater than the available
+            space from arrayIndex to the end of the destination array.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            The type of the source System.Collections.ArrayList cannot be cast automatically
+            to the type of the destination array.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.GetEnumerator">
+            <summary>
+            Returns an enumerator for the entire System.Collections.ArrayList.
+            </summary>
+            <returns>
+            An System.Collections.IEnumerator for the entire System.Collections.ArrayList.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.GetEnumerator(System.Int32,System.Int32)">
+            <summary>
+            Returns an enumerator for a range of elements in the System.Collections.ArrayList.
+            </summary>
+            <param name="index">
+            The zero-based starting index of the System.Collections.ArrayList section
+            that the enumerator should refer to.
+            </param>
+            <param name="count">
+            The number of elements in the System.Collections.ArrayList section that the
+            enumerator should refer to.
+            </param>
+            <returns>
+            An System.Collections.IEnumerator for the specified range of elements in
+            the System.Collections.ArrayList.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- count is less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not specify a valid range in the System.Collections.ArrayList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.GetRange(System.Int32,System.Int32)">
+            <summary>
+            Returns an System.Collections.ArrayList which represents a subset of the
+            elements in the source System.Collections.ArrayList.
+            </summary>
+            <param name="index">
+            The zero-based System.Collections.ArrayList index at which the range starts.
+            </param>
+            <param name="count">
+            The number of elements in the range.
+            </param>
+            <returns>
+            An System.Collections.ArrayList which represents a subset of the elements
+            in the source System.Collections.ArrayList.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- count is less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not denote a valid range of elements in the System.Collections.ArrayList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.IndexOf(System.Object)">
+            <summary>
+            Searches for the specified System.Object and returns the zero-based index
+            of the first occurrence within the entire System.Collections.ArrayList.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <returns>
+            The zero-based index of the first occurrence of item within the entire System.Collections.ArrayList,
+            if found; otherwise, -1.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.IndexOf(System.Object,System.Int32)">
+            <summary>
+            Searches for the specified System.Object and returns the zero-based index
+            of the first occurrence within the range of elements in the System.Collections.ArrayList
+            that extends from the specified index to the last element.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the search.
+            </param>
+            <returns>
+            The zero-based index of the first occurrence of item within the range of
+            elements in the System.Collections.ArrayList that extends from startIndex
+            to the last element, if found; otherwise, -1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.ArrayList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.IndexOf(System.Object,System.Int32,System.Int32)">
+            <summary>
+            Searches for the specified System.Object and returns the zero-based index
+            of the first occurrence within the range of elements in the System.Collections.ArrayList
+            that starts at the specified index and contains the specified number of elements.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the search.
+            </param>
+            <param name="count">
+            The number of elements in the section to search.
+            </param>
+            <returns>
+            The zero-based index of the first occurrence of item within the range of
+            elements in the System.Collections.ArrayList that starts at startIndex and
+            contains count number of elements, if found; otherwise, -1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.ArrayList.-or-
+            count is less than zero.-or- startIndex and count do not specify a valid
+            section in the System.Collections.ArrayList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Insert(System.Int32,System.Object)">
+            <summary>
+            Inserts an element into the System.Collections.ArrayList at the specified
+            index.
+            </summary>
+            <param name="index">
+            The zero-based index at which item should be inserted.
+            </param>
+            <param name="item">
+            The System.Object to insert. The item can be null.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- index is greater than System.Collections.ArrayList.Count.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.InsertRange(System.Int32,InternalSystem.Collections.ICollection)">
+            <summary>
+            Inserts the elements of a collection into the System.Collections.ArrayList
+            at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index at which the new elements should be inserted.
+            </param>
+            <param name="collection">
+            The System.Collections.ICollection whose elements should be inserted into
+            the System.Collections.ArrayList. The collection itself cannot be null, but
+            it can contain elements that are null.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            collection is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- index is greater than System.Collections.ArrayList.Count.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.LastIndexOf(System.Object)">
+            <summary>
+            Searches for the specified System.Object and returns the zero-based index
+            of the last occurrence within the entire System.Collections.ArrayList.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <returns>
+            The zero-based index of the last occurrence of item within the entire the
+            System.Collections.ArrayList, if found; otherwise, -1.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.LastIndexOf(System.Object,System.Int32)">
+            <summary>
+            Searches for the specified System.Object and returns the zero-based index
+            of the last occurrence within the range of elements in the System.Collections.ArrayList
+            that extends from the first element to the specified index.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the backward search.
+            </param>
+            <returns>
+            The zero-based index of the last occurrence of item within the range of
+            elements in the System.Collections.ArrayList that extends from the first
+            element to startIndex, if found; otherwise, -1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.ArrayList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.LastIndexOf(System.Object,System.Int32,System.Int32)">
+            <summary>
+            Searches for the specified System.Object and returns the zero-based index
+            of the last occurrence within the range of elements in the System.Collections.ArrayList
+            that contains the specified number of elements and ends at the specified
+            index.
+            </summary>
+            <param name="item">
+            The System.Object to locate in the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <param name="startIndex">
+            The zero-based starting index of the backward search.
+            </param>
+            <param name="count">
+            The number of elements in the section to search.
+            </param>
+            <returns>
+            The zero-based index of the last occurrence of item within the range of
+            elements in the System.Collections.ArrayList that contains count number of
+            elements and ends at startIndex, if found; otherwise, -1.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            startIndex is outside the range of valid indexes for the System.Collections.ArrayList.-or-
+            count is less than zero.-or- startIndex and count do not specify a valid
+            section in the System.Collections.ArrayList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Remove(System.Object)">
+            <summary>
+            Removes the first occurrence of a specific object from the System.Collections.ArrayList.
+            </summary>
+            <param name="obj">
+            The System.Object to remove from the System.Collections.ArrayList. The item
+            can be null.
+            </param>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.RemoveAt(System.Int32)">
+            <summary>
+            Removes the element at the specified index of the System.Collections.ArrayList.
+            </summary>
+            <param name="index">
+            The zero-based index of the element to remove.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- index is equal to or greater than System.Collections.ArrayList.Count.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.RemoveRange(System.Int32,System.Int32)">
+            <summary>
+            Removes a range of elements from the System.Collections.ArrayList.
+            </summary>
+            <param name="index">
+            The zero-based starting index of the range of elements to remove.
+            </param>
+            <param name="count">
+            The number of elements to remove.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- count is less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not denote a valid range of elements in the System.Collections.ArrayList.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Repeat(System.Object,System.Int32)">
+            <summary>
+            Returns an System.Collections.ArrayList whose elements are copies of the
+            specified item.
+            </summary>
+            <param name="item">
+            The System.Object to copy multiple times in the new System.Collections.ArrayList.
+            The item can be null.
+            </param>
+            <param name="count">
+            The number of times item should be copied.
+            </param>
+            <returns>
+            An System.Collections.ArrayList with count number of elements, all of which
+            are copies of item.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            count is less than zero.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Reverse">
+            <summary>
+            Reverses the order of the elements in the entire System.Collections.ArrayList.
+            </summary>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.Reverse(System.Int32,System.Int32)">
+            <summary>
+            Reverses the order of the elements in the specified range.
+            </summary>
+            <param name="index">
+            The zero-based starting index of the range to reverse.
+            </param>
+            <param name="count">
+            The number of elements in the range to reverse.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.-or- count is less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            index and count do not denote a valid range of elements in the System.Collections.ArrayList.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.ToArray">
+            <summary>
+            Copies the elements of the System.Collections.ArrayList to a new System.Object
+            array.
+            </summary>
+            <returns>
+            An System.Object array containing copies of the elements of the System.Collections.ArrayList.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.ArrayList.TrimToSize">
+            <summary>
+            Sets the capacity to the actual number of elements in the System.Collections.ArrayList.
+            </summary>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.ArrayList is read-only.-or- The System.Collections.ArrayList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="T:InternalSystem.Collections.ICollection">
+            <summary>
+            Defines size, enumerators, and synchronization methods for all nongeneric
+            collections.
+            </summary>
+        </member>
+        <member name="P:InternalSystem.Collections.ICollection.Count">
+            <summary>
+            Gets the number of elements contained in the System.Collections.ICollection.
+            </summary>
+            <returns>
+            The number of elements contained in the System.Collections.ICollection.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.ICollection.IsSynchronized">
+            <summary>
+            Gets a value indicating whether access to the System.Collections.ICollection
+            is synchronized (thread safe).
+            </summary>
+            <returns>
+            true if access to the System.Collections.ICollection is synchronized (thread
+            safe); otherwise, false.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.ICollection.SyncRoot">
+            <summary>
+            Gets an object that can be used to synchronize access to the System.Collections.ICollection.
+            </summary>
+            <returns>
+            An object that can be used to synchronize access to the System.Collections.ICollection.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.ICollection.CopyTo(System.Array,System.Int32)">
+            <summary>
+            Copies the elements of the System.Collections.ICollection to an System.Array,
+            starting at a particular System.Array index.
+            </summary>
+            <param name="array">
+            The one-dimensional System.Array that is the destination of the elements
+            copied from System.Collections.ICollection. The System.Array must have zero-based
+            indexing.
+            </param>
+            <param name="index">
+            The zero-based index in array at which copying begins.
+            </param>
+            <exception cref="T:System.ArgumentNullException">
+            array is null.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is less than zero.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            array is multidimensional.-or- index is equal to or greater than the length
+            of array.-or- The number of elements in the source System.Collections.ICollection
+            is greater than the available space from index to the end of the destination
+            array.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            The type of the source System.Collections.ICollection cannot be cast automatically
+            to the type of the destination array.
+            </exception>
+        </member>
+        <member name="T:InternalSystem.Collections.IEnumerable">
+            <summary>
+            Exposes the enumerator, which supports a simple iteration over a non-generic
+            collection.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.Collections.IEnumerable.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>
+            An System.Collections.IEnumerator object that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="T:InternalSystem.Collections.IEnumerator">
+            <summary>
+            Supports a simple iteration over a nongeneric collection.
+            </summary>
+        </member>
+        <member name="P:InternalSystem.Collections.IEnumerator.Current">
+            <summary>
+            Gets the current element in the collection.
+            </summary>
+            <returns>
+            The current element in the collection.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            The enumerator is positioned before the first element of the collection or
+            after the last element.-or- The collection was modified after the enumerator
+            was created.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IEnumerator.MoveNext">
+            <summary>
+            Advances the enumerator to the next element of the collection.
+            </summary>
+            <returns>
+            true if the enumerator was successfully advanced to the next element; false
+            if the enumerator has passed the end of the collection.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            The collection was modified after the enumerator was created.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IEnumerator.Reset">
+            <summary>
+            Sets the enumerator to its initial position, which is before the first element
+            in the collection.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+            The collection was modified after the enumerator was created.
+            </exception>
+        </member>
+        <member name="T:InternalSystem.Collections.IList">
+            <summary>
+            Represents a non-generic collection of objects that can be individually accessed
+            by index.
+            </summary>
+        </member>
+        <member name="P:InternalSystem.Collections.IList.IsFixedSize">
+            <summary>
+            Gets a value indicating whether the System.Collections.IList has a fixed
+            size.
+            </summary>
+            <returns>
+            true if the System.Collections.IList has a fixed size; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.IList.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the System.Collections.IList is read-only.
+            </summary>
+            <returns>
+            true if the System.Collections.IList is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:InternalSystem.Collections.IList.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index of the element to get or set.
+            </param>
+            <returns>
+            The element at the specified index.
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is not a valid index in the System.Collections.IList.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The property is set and the System.Collections.IList is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.Add(System.Object)">
+            <summary>
+            Adds an item to the System.Collections.IList.
+            </summary>
+            <param name="value">
+            The System.Object to add to the System.Collections.IList.
+            </param>
+            <returns>
+            The position into which the new element was inserted.
+            </returns>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.IList is read-only.-or- The System.Collections.IList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.Clear">
+            <summary>
+            Removes all items from the System.Collections.IList.
+            </summary>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.IList is read-only.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.Contains(System.Object)">
+            <summary>
+            Determines whether the System.Collections.IList contains a specific value.
+            </summary>
+            <param name="value">
+            The System.Object to locate in the System.Collections.IList.
+            </param>
+            <returns>
+            true if the System.Object is found in the System.Collections.IList; otherwise,
+            false.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.IndexOf(System.Object)">
+            <summary>
+            Determines the index of a specific item in the System.Collections.IList.
+            </summary>
+            <param name="value">
+            The System.Object to locate in the System.Collections.IList.
+            </param>
+            <returns>
+            The index of value if found in the list; otherwise, -1.
+            </returns>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.Insert(System.Int32,System.Object)">
+            <summary>
+            Inserts an item to the System.Collections.IList at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index at which value should be inserted.
+            </param>
+            <param name="value">
+            The System.Object to insert into the System.Collections.IList.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is not a valid index in the System.Collections.IList.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.IList is read-only.-or- The System.Collections.IList
+            has a fixed size.
+            </exception>
+            <exception cref="T:System.NullReferenceException">
+            value is null reference in the System.Collections.IList.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.Remove(System.Object)">
+            <summary>
+            Removes the first occurrence of a specific object from the System.Collections.IList.
+            </summary>
+            <param name="value">
+            The System.Object to remove from the System.Collections.IList.
+            </param>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.IList is read-only.-or- The System.Collections.IList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="M:InternalSystem.Collections.IList.RemoveAt(System.Int32)">
+            <summary>
+            Removes the System.Collections.IList item at the specified index.
+            </summary>
+            <param name="index">
+            The zero-based index of the item to remove.
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            index is not a valid index in the System.Collections.IList.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The System.Collections.IList is read-only.-or- The System.Collections.IList
+            has a fixed size.
+            </exception>
+        </member>
+        <member name="T:InternalSystem.ICloneable">
+            <summary>
+            Supports cloning, which creates a new instance of a class with the same value
+            as an existing instance.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.ICloneable.Clone">
+            <summary>
+            Creates a new object that is a copy of the current instance.
+            </summary>
+            <returns>
+            A new object that is a copy of this instance.
+            </returns>
+        </member>
+        <member name="T:InternalSystem.IDisposable">
+            <summary>
+            Defines a method to release allocated resources.
+            </summary>
+        </member>
+        <member name="M:InternalSystem.IDisposable.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or
+            resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="F:InternalSystem.Object.VTable">
+            <summary>
+            Used to support runtime method binding / Dynamic Dispatch
+            </summary>
+        </member>
+    </members>
+</doc>

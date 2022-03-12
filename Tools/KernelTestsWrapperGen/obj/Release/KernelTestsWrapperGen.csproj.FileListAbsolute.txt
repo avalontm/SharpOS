@@ -1,0 +1,10 @@
+D:\SharpOS\Tools\KernelTestsWrapperGen\bin\Release\KernelTestsWrapperGen.exe
+D:\SharpOS\Tools\KernelTestsWrapperGen\bin\Release\KernelTestsWrapperGen.pdb
+D:\SharpOS\Tools\KernelTestsWrapperGen\bin\Release\Mono.Cecil.dll
+D:\SharpOS\Tools\KernelTestsWrapperGen\bin\Release\Mono.GetOptions.dll
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Release\KernelTestsWrapperGen.csproj.CoreCompileInputs.cache
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Release\KernelTestsWrapperGen.csproj.CopyComplete
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Release\KernelTestsWrapperGen.exe
+D:\SharpOS\Tools\KernelTestsWrapperGen\obj\Release\KernelTestsWrapperGen.pdb
+D:\SharpOS\build\KernelTestsWrapperGen.exe
+D:\SharpOS\build\KernelTestsWrapperGen.pdb

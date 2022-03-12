@@ -25,8 +25,7 @@ namespace SharpOS.AOT.IR.Operands {
 		/// <param name="index">The index.</param>
 		/// <param name="type">The type.</param>
 		/// <param name="internalType">Type of the internal.</param>
-		public Argument (int index, Class type, InternalType internalType)
-			: base ("Arg", index)
+		public Argument (int index, Class type, InternalType internalType): base ("Arg", index)
 		{
 			this.type = type;
 			this.internalType = internalType;

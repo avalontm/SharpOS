@@ -1,0 +1,7 @@
+D:\SharpOS\build\SharpOS.AOT.Tests.dll
+D:\SharpOS\build\SharpOS.AOT.Tests.pdb
+D:\SharpOS\AOT\Core.Tests\obj\Release\SharpOS.AOT.Tests.csproj.AssemblyReference.cache
+D:\SharpOS\AOT\Core.Tests\obj\Release\SharpOS.AOT.Tests.csproj.CoreCompileInputs.cache
+D:\SharpOS\AOT\Core.Tests\obj\Release\SharpOS.AOT.Tests.csproj.CopyComplete
+D:\SharpOS\AOT\Core.Tests\obj\Release\SharpOS.AOT.Tests.dll
+D:\SharpOS\AOT\Core.Tests\obj\Release\SharpOS.AOT.Tests.pdb

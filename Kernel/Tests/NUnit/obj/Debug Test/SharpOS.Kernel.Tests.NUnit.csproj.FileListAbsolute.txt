@@ -1,0 +1,7 @@
+D:\SharpOS\build\SharpOS.Kernel.Tests.NUnit.dll
+D:\SharpOS\build\SharpOS.Kernel.Tests.NUnit.pdb
+D:\SharpOS\Kernel\Tests\NUnit\obj\Debug Test\SharpOS.Kernel.Tests.NUnit.csproj.AssemblyReference.cache
+D:\SharpOS\Kernel\Tests\NUnit\obj\Debug Test\SharpOS.Kernel.Tests.NUnit.csproj.CoreCompileInputs.cache
+D:\SharpOS\Kernel\Tests\NUnit\obj\Debug Test\SharpOS.Kernel.Tests.NUnit.csproj.CopyComplete
+D:\SharpOS\Kernel\Tests\NUnit\obj\Debug Test\SharpOS.Kernel.Tests.NUnit.dll
+D:\SharpOS\Kernel\Tests\NUnit\obj\Debug Test\SharpOS.Kernel.Tests.NUnit.pdb
