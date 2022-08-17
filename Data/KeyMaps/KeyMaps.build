@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<!--
+        *  (C) 2007 SharpOS Team
+	*
+	* Authors:
+	*	William Lahti
+	*
+        *  Licensed under the terms of the GNU GPL License version 2.
+        *
+-->
+
+<project name="Data/KeyMaps" default="build">
+	<description>Compiles the keymaps to binary form</description>
+
+	<property name="debug" value="false" readonly="false" overwrite="false" />
+	<property name="prefix" value="../../build/KeyMaps" />
+	<property name="compiler" value="../../build/key-compiler.exe" />
+
+	<target name="*" if="${string::ends-with(target::get-current-target(), '.skm')}">
+		<uptodate property="keymap.uptodate">
+			<sourcefiles>
+				<include name="${compiler}" />
+				<include name="${target::get-current-target()}" />
+			</sourcefiles>
+			<targetfiles>
+				<include name="${prefix}/${path::get-file-name-without-extension(target::get-current-target())}.bin" />
+			</targetfiles>
+		</uptodate>
+		<exec
+			program="${compiler}"
+			commandline="${target::get-current-target()} -o:${prefix}/${path::get-file-name-without-extension(target::get-current-target())}.bin"
+			unless="${keymap.uptodate}"
+			/>
+	</target>
+
+	<target name="build">
+		<echo message="Building Key compiler" />
+		<mkdir dir="${prefix}" />
+		<nant buildfile="../../Tools/KeyCompiler/KeyCompiler.build" />
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="*.skm" />
+				</items>
+			</in>
+			<do>
+				<call target="${path::get-file-name(filename)}" />
+			</do>
+		</foreach>
+	</target>
+
+	<target name="clean">
+		<foreach item="File" property="filename">
+			<in>
+				<items>
+					<include name="${prefix}/*.bin" />
+				</items>
+			</in>
+			<do>
+				<delete file="${filename}" failonerror="false" />
+			</do>
+		</foreach>
+
+		<delete dir="${prefix}" />
+	</target>
+</project>

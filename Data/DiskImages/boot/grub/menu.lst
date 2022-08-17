@@ -1,0 +1,5 @@
+color yellow/blue yellow/red
+timeout 1
+title=SharpOS
+root (cd)
+kernel /SharpOS.Kernel.bin

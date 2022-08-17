@@ -1,0 +1,300 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7C0A6DF4-B2B8-4CD9-A073-EE834B4246F8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpOS.AOT</RootNamespace>
+    <AssemblyName>SharpOS.AOT.Core</AssemblyName>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\build\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>
+    </DocumentationFile>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <NoStdLib>false</NoStdLib>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SharpOS.AOT.Core</AssemblyName>
+    <RootNamespace>SharpOS.AOT</RootNamespace>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\build\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>..\..\build\SharpOS.AOT.Core.XML</DocumentationFile>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <NoStdLib>false</NoStdLib>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SharpOS.AOT.Core</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <RootNamespace>SharpOS.AOT</RootNamespace>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\build\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SharpOS.AOT.Core</AssemblyName>
+    <RootNamespace>SharpOS.AOT</RootNamespace>
+    <Optimize>true</Optimize>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Test|AnyCPU' ">
+    <OutputPath>bin\Release Test\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>..\..\build\SharpOS.AOT.Core.XML</DocumentationFile>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SharpOS.AOT.Core</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <RootNamespace>SharpOS.AOT</RootNamespace>
+    <Optimize>true</Optimize>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\References\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\ADCInterfaceAttribute.cs" />
+    <Compile Include="Attributes\ADCLayerAttribute.cs" />
+    <Compile Include="Attributes\ADCStubAttribute.cs" />
+    <Compile Include="Attributes\AddressOfAttribute.cs" />
+    <Compile Include="Attributes\AllocArrayAttribute.cs" />
+    <Compile Include="Attributes\AllocAttribute.cs" />
+    <Compile Include="Attributes\AllocObjectAttribute.cs" />
+    <Compile Include="Attributes\CastClassAttribute.cs" />
+    <Compile Include="Attributes\ExceptionHandlingClauseAttribute.cs" />
+    <Compile Include="Attributes\IncludeAttribute.cs" />
+    <Compile Include="Attributes\IsInstAttribute.cs" />
+    <Compile Include="Attributes\ITableAttribute.cs" />
+    <Compile Include="Attributes\KernelMainAttribute.cs" />
+    <Compile Include="Attributes\LabelAddressAttribute.cs" />
+    <Compile Include="Attributes\LabelAttribute.cs" />
+    <Compile Include="Attributes\LabelledAllocAttribute.cs" />
+    <Compile Include="Attributes\MethodBoundaryAttribute.cs" />
+    <Compile Include="Attributes\NakedAttribute.cs" />
+    <Compile Include="Attributes\NullReferenceHandlerAttribute.cs" />
+    <Compile Include="Attributes\ObjectToPointerAttribute.cs" />
+    <Compile Include="Attributes\OverflowAttribute.cs" />
+    <Compile Include="Attributes\PointerToObjectAttribute.cs" />
+    <Compile Include="Attributes\StringAttribute.cs" />
+    <Compile Include="Attributes\TargetNamespaceAttribute.cs" />
+    <Compile Include="Attributes\ThrowAttribute.cs" />
+    <Compile Include="Attributes\TypeInfoAttribute.cs" />
+    <Compile Include="Attributes\VTableAttribute.cs" />
+    <Compile Include="IR\Instructions\Add.cs" />
+    <Compile Include="IR\Instructions\And.cs" />
+    <Compile Include="IR\Instructions\Box.cs" />
+    <Compile Include="IR\Instructions\Branch.cs" />
+    <Compile Include="IR\Instructions\Break.cs" />
+    <Compile Include="IR\Instructions\Call.cs" />
+    <Compile Include="IR\Instructions\CallInstruction.cs" />
+    <Compile Include="IR\Instructions\Callvirt.cs" />
+    <Compile Include="IR\Instructions\Castclass.cs" />
+    <Compile Include="IR\Instructions\ConditionCheck.cs" />
+    <Compile Include="IR\Instructions\Convert.cs" />
+    <Compile Include="IR\Instructions\Div.cs" />
+    <Compile Include="IR\Instructions\Dup.cs" />
+    <Compile Include="IR\Instructions\Endfilter.cs" />
+    <Compile Include="IR\Instructions\Endfinally.cs" />
+    <Compile Include="IR\Instructions\Initialize.cs" />
+    <Compile Include="IR\Instructions\Initobj.cs" />
+    <Compile Include="IR\Instructions\Instruction.cs" />
+    <Compile Include="IR\Instructions\Isinst.cs" />
+    <Compile Include="IR\Instructions\Jump.cs" />
+    <Compile Include="IR\Instructions\Ldarg.cs" />
+    <Compile Include="IR\Instructions\Ldarga.cs" />
+    <Compile Include="IR\Instructions\Ldc.cs" />
+    <Compile Include="IR\Instructions\Ldelem.cs" />
+    <Compile Include="IR\Instructions\Ldelema.cs" />
+    <Compile Include="IR\Instructions\Ldfld.cs" />
+    <Compile Include="IR\Instructions\Ldflda.cs" />
+    <Compile Include="IR\Instructions\Ldftn.cs" />
+    <Compile Include="IR\Instructions\Ldind.cs" />
+    <Compile Include="IR\Instructions\Ldlen.cs" />
+    <Compile Include="IR\Instructions\Ldloc.cs" />
+    <Compile Include="IR\Instructions\Ldloca.cs" />
+    <Compile Include="IR\Instructions\Ldnull.cs" />
+    <Compile Include="IR\Instructions\Ldobj.cs" />
+    <Compile Include="IR\Instructions\Ldsfld.cs" />
+    <Compile Include="IR\Instructions\Ldsflda.cs" />
+    <Compile Include="IR\Instructions\Ldstr.cs" />
+    <Compile Include="IR\Instructions\Ldtoken.cs" />
+    <Compile Include="IR\Instructions\Leave.cs" />
+    <Compile Include="IR\Instructions\Localloc.cs" />
+    <Compile Include="IR\Instructions\Mul.cs" />
+    <Compile Include="IR\Instructions\Neg.cs" />
+    <Compile Include="IR\Instructions\Newarr.cs" />
+    <Compile Include="IR\Instructions\Newobj.cs" />
+    <Compile Include="IR\Instructions\Not.cs" />
+    <Compile Include="IR\Instructions\Or.cs" />
+    <Compile Include="IR\Instructions\PHI.cs" />
+    <Compile Include="IR\Instructions\Pop.cs" />
+    <Compile Include="IR\Instructions\RelationalType.cs" />
+    <Compile Include="IR\Instructions\Rem.cs" />
+    <Compile Include="IR\Instructions\Return.cs" />
+    <Compile Include="IR\Instructions\Shl.cs" />
+    <Compile Include="IR\Instructions\Shr.cs" />
+    <Compile Include="IR\Instructions\SimpleBranch.cs" />
+    <Compile Include="IR\Instructions\SizeOf.cs" />
+    <Compile Include="IR\Instructions\Starg.cs" />
+    <Compile Include="IR\Instructions\Stelem.cs" />
+    <Compile Include="IR\Instructions\Stfld.cs" />
+    <Compile Include="IR\Instructions\Stind.cs" />
+    <Compile Include="IR\Instructions\Stloc.cs" />
+    <Compile Include="IR\Instructions\Stobj.cs" />
+    <Compile Include="IR\Instructions\Stsfld.cs" />
+    <Compile Include="IR\Instructions\Sub.cs" />
+    <Compile Include="IR\Instructions\Switch.cs" />
+    <Compile Include="IR\Instructions\Throw.cs" />
+    <Compile Include="IR\Instructions\Unbox.cs" />
+    <Compile Include="IR\Instructions\UnboxAny.cs" />
+    <Compile Include="IR\Instructions\Xor.cs" />
+    <Compile Include="IR\Operands\Argument.cs" />
+    <Compile Include="IR\Operands\Constant.cs" />
+    <Compile Include="IR\Operands\DoubleConstant.cs" />
+    <Compile Include="IR\Operands\Field.cs" />
+    <Compile Include="IR\Operands\FieldOperand.cs" />
+    <Compile Include="IR\Operands\FloatConstant.cs" />
+    <Compile Include="IR\Operands\Identifier.cs" />
+    <Compile Include="IR\Operands\IntConstant.cs" />
+    <Compile Include="IR\Operands\InternalType.cs" />
+    <Compile Include="IR\Operands\Local.cs" />
+    <Compile Include="IR\Operands\LongConstant.cs" />
+    <Compile Include="IR\Operands\NullConstant.cs" />
+    <Compile Include="IR\Operands\Operand.cs" />
+    <Compile Include="IR\Operands\Register.cs" />
+    <Compile Include="IR\Operands\StringConstant.cs" />
+    <Compile Include="IR\Operands\TokenConstant.cs" />
+    <Compile Include="IR\Block.cs" />
+    <Compile Include="IR\Class.cs" />
+    <Compile Include="IR\Dump.cs" />
+    <Compile Include="IR\Engine.cs" />
+    <Compile Include="IR\EngineException.cs" />
+    <Compile Include="IR\EngineOptions.cs" />
+    <Compile Include="IR\ExceptionHandlingClause.cs" />
+    <Compile Include="IR\Method.cs" />
+    <Compile Include="Metadata\ModuleMetadata.cs" />
+    <Compile Include="X86\AddressOf.cs" />
+    <Compile Include="X86\AlignInstruction.cs" />
+    <Compile Include="X86\Asm.cs" />
+    <Compile Include="X86\Assembly.cs" />
+    <Compile Include="X86\AssemblyMethod.cs" />
+    <Compile Include="X86\Bits32Instruction.cs" />
+    <Compile Include="X86\BlobDataInstruction.cs" />
+    <Compile Include="X86\ByteDataInstruction.cs" />
+    <Compile Include="X86\ByteMemory.cs" />
+    <Compile Include="X86\CommentInstruction.cs" />
+    <Compile Include="X86\CR.cs" />
+    <Compile Include="X86\CRType.cs" />
+    <Compile Include="X86\DataInstruction.cs" />
+    <Compile Include="X86\DR.cs" />
+    <Compile Include="X86\DRType.cs" />
+    <Compile Include="X86\DWordDataInstruction.cs" />
+    <Compile Include="X86\DWordMemory.cs" />
+    <Compile Include="X86\Engine.cs" />
+    <Compile Include="X86\FP.cs" />
+    <Compile Include="X86\FPType.cs" />
+    <Compile Include="X86\Instruction.cs" />
+    <Compile Include="X86\Instructions.cs" />
+    <Compile Include="X86\IR.cs" />
+    <Compile Include="X86\LabelInstruction.cs" />
+    <Compile Include="X86\Memory.cs" />
+    <Compile Include="X86\Metadata.cs" />
+    <Compile Include="X86\OffsetInstruction.cs" />
+    <Compile Include="X86\OrgInstruction.cs" />
+    <Compile Include="X86\QWordMemory.cs" />
+    <Compile Include="X86\R16.cs" />
+    <Compile Include="X86\R16Type.cs" />
+    <Compile Include="X86\R32.cs" />
+    <Compile Include="X86\R32Type.cs" />
+    <Compile Include="X86\R8.cs" />
+    <Compile Include="X86\R8Type.cs" />
+    <Compile Include="X86\Register.cs" />
+    <Compile Include="X86\Seg.cs" />
+    <Compile Include="X86\SegType.cs" />
+    <Compile Include="X86\TimesInstruction.cs" />
+    <Compile Include="X86\TR.cs" />
+    <Compile Include="X86\TRType.cs" />
+    <Compile Include="X86\TWordMemory.cs" />
+    <Compile Include="X86\WordDataInstruction.cs" />
+    <Compile Include="X86\WordMemory.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="COFF.cs" />
+    <Compile Include="IAssembly.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

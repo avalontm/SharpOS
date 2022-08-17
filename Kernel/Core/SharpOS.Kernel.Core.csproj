@@ -1,0 +1,361 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1BDA3EE0-BC5F-4C4A-986C-31730A8EFADC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpOS.Kernel</RootNamespace>
+    <AssemblyName>SharpOS.Kernel</AssemblyName>
+    <StartWorkingDirectory>
+    </StartWorkingDirectory>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\build\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;KERNEL_TESTS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\build\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>..\..\build\SharpOS.Kernel.Core.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug Test\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Test|AnyCPU' ">
+    <OutputPath>..\..\build\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>..\..\build\SharpOS.Kernel.Core.XML</DocumentationFile>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AOT\Core\SharpOS.AOT.Core.csproj">
+      <Project>{7C0A6DF4-B2B8-4CD9-A073-EE834B4246F8}</Project>
+      <Name>SharpOS.AOT.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tests\CS\SharpOS.Kernel.Tests.CS.csproj">
+      <Project>{14D3B428-413F-11DC-8314-0800200C9A66}</Project>
+      <Name>SharpOS.Kernel.Tests.CS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tests\IL\SharpOS.Kernel.Tests.IL.csproj">
+      <Project>{5E470596-4138-11DC-8314-0800200C9A66}</Project>
+      <Name>SharpOS.Kernel.Tests.IL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ADC\X86\Architecture.cs" />
+    <Compile Include="ADC\X86\AssemblyAttributes.cs" />
+    <Compile Include="ADC\X86\Barrier.cs" />
+    <Compile Include="ADC\X86\BootControl.cs" />
+    <Compile Include="ADC\X86\CMOS.cs" />
+    <Compile Include="ADC\X86\DMA.cs" />
+    <Compile Include="ADC\X86\DTPointer.cs" />
+    <Compile Include="ADC\X86\ExceptionHandling.cs" />
+    <Compile Include="ADC\X86\GDT.cs" />
+    <Compile Include="ADC\X86\IDT.cs" />
+    <Compile Include="ADC\X86\Interlocked.cs" />
+    <Compile Include="ADC\X86\IO.cs" />
+    <Compile Include="ADC\X86\IRQHandler16bit.cs" />
+    <Compile Include="ADC\X86\Keyboard.cs" />
+    <Compile Include="ADC\X86\MemoryUtil.cs" />
+    <Compile Include="ADC\X86\Pager.cs" />
+    <Compile Include="ADC\X86\PIC.cs" />
+    <Compile Include="ADC\X86\PIT.cs" />
+    <Compile Include="ADC\X86\Processor.cs" />
+    <Compile Include="ADC\X86\RTC.cs" />
+    <Compile Include="ADC\X86\TextMode.cs" />
+    <Compile Include="ADC\X86\Thread.cs" />
+    <Compile Include="ADC\X86\ThreadManager.cs" />
+    <Compile Include="ADC\X86\Timer.cs" />
+    <Compile Include="ADC\Architecture.cs" />
+    <Compile Include="ADC\Barrier.cs" />
+    <Compile Include="ADC\BootControl.cs" />
+    <Compile Include="ADC\Debug.cs" />
+    <Compile Include="ADC\Dispatcher.cs" />
+    <Compile Include="ADC\ExceptionHandling.cs" />
+    <Compile Include="ADC\Interlocked.cs" />
+    <Compile Include="ADC\IO.cs" />
+    <Compile Include="ADC\IProcessor.cs" />
+    <Compile Include="ADC\IScheduler.cs" />
+    <Compile Include="ADC\Keyboard.cs" />
+    <Compile Include="ADC\Keys.cs" />
+    <Compile Include="ADC\MemoryManager.cs" />
+    <Compile Include="ADC\MemoryUtil.cs" />
+    <Compile Include="ADC\Pager.cs" />
+    <Compile Include="ADC\ProcessorType.cs" />
+    <Compile Include="ADC\RoundRobinScheduler.cs" />
+    <Compile Include="ADC\RTC.cs" />
+    <Compile Include="ADC\SimpleEventDispatch.cs" />
+    <Compile Include="ADC\SpinLock.cs" />
+    <Compile Include="ADC\TextColor.cs" />
+    <Compile Include="ADC\TextMode.cs" />
+    <Compile Include="ADC\Thread.cs" />
+    <Compile Include="ADC\ThreadManager.cs" />
+    <Compile Include="ADC\Timer.cs" />
+    <Compile Include="DeviceSystem\Drivers\DiskControllers\FloppyDiskDriver.cs" />
+    <Compile Include="DeviceSystem\Drivers\DiskControllers\IDEDiskDriver.cs" />
+    <Compile Include="DeviceSystem\Drivers\DiskControllers\IDiskControllerDevice.cs" />
+    <Compile Include="DeviceSystem\Drivers\PCI\IPCIController.cs" />
+    <Compile Include="DeviceSystem\Drivers\PCI\PCIBaseAddress.cs" />
+    <Compile Include="DeviceSystem\Drivers\PCI\PCIController.cs" />
+    <Compile Include="DeviceSystem\Drivers\PCI\PCIDevice.cs" />
+    <Compile Include="DeviceSystem\Drivers\ISerialDevice.cs" />
+    <Compile Include="DeviceSystem\Drivers\SerialDevice.cs" />
+    <Compile Include="DeviceSystem\Boot.cs" />
+    <Compile Include="DeviceSystem\Device.cs" />
+    <Compile Include="DeviceSystem\DeviceManager.cs" />
+    <Compile Include="DeviceSystem\HardwareDevice.cs" />
+    <Compile Include="DeviceSystem\HardwareResources.cs" />
+    <Compile Include="DeviceSystem\IDevice.cs" />
+    <Compile Include="DeviceSystem\IDiskDevice.cs" />
+    <Compile Include="DeviceSystem\IFileSystemDevice.cs" />
+    <Compile Include="DeviceSystem\IPartitionDevice.cs" />
+    <Compile Include="DiagnosticTool\Server.cs" />
+    <Compile Include="FileSystem\FATFileSystem\FAT.cs" />
+    <Compile Include="FileSystem\FATFileSystem\FATDevice.cs" />
+    <Compile Include="FileSystem\FATFileSystem\FATFileStream.cs" />
+    <Compile Include="FileSystem\FATFileSystem\FATSettings.cs" />
+    <Compile Include="FileSystem\FATFileSystem\VfsDirectory.cs" />
+    <Compile Include="FileSystem\FATFileSystem\VfsFile.cs" />
+    <Compile Include="FileSystem\FATFileSystem\VfsFileSystem.cs" />
+    <Compile Include="FileSystem\BinaryFormat.cs" />
+    <Compile Include="FileSystem\Boot.cs" />
+    <Compile Include="FileSystem\DiskDevice.cs" />
+    <Compile Include="FileSystem\GenericFileSystem.cs" />
+    <Compile Include="FileSystem\GenericPartition.cs" />
+    <Compile Include="FileSystem\MasterBootBlock.cs" />
+    <Compile Include="FileSystem\PartitionDevice.cs" />
+    <Compile Include="FileSystem\SettingsBase.cs" />
+    <Compile Include="Foundation\BinaryTool.cs" />
+    <Compile Include="Foundation\ByteString.cs" />
+    <Compile Include="Foundation\CalendarManager.cs" />
+    <Compile Include="Foundation\CalendarType.cs" />
+    <Compile Include="Foundation\Convert.cs" />
+    <Compile Include="Foundation\CString8.cs" />
+    <Compile Include="Foundation\GregorianCalendar.cs" />
+    <Compile Include="Foundation\ICalendar.cs" />
+    <Compile Include="Foundation\PString8.cs" />
+    <Compile Include="Foundation\StringBuilder.cs" />
+    <Compile Include="Foundation\Testcase.cs" />
+    <Compile Include="Foundation\Time.cs" />
+    <Compile Include="Foundation\Timestamp.cs" />
+    <Compile Include="Foundation\Timezone.cs" />
+    <Compile Include="HAL\DMAChannel.cs" />
+    <Compile Include="HAL\IOPort.cs" />
+    <Compile Include="HAL\IRQHandler.cs" />
+    <Compile Include="Korlib\Runtime\ExceptionHandlingClause.cs" />
+    <Compile Include="Korlib\Runtime\FieldMetadata.cs" />
+    <Compile Include="Korlib\Runtime\ITable.cs" />
+    <Compile Include="Korlib\Runtime\Metadata.cs" />
+    <Compile Include="Korlib\Runtime\MetadataSignatures.cs" />
+    <Compile Include="Korlib\Runtime\MetadataToken.cs" />
+    <Compile Include="Korlib\Runtime\MethodBoundary.cs" />
+    <Compile Include="Korlib\Runtime\Runtime.cs" />
+    <Compile Include="Korlib\Runtime\TokenType.cs" />
+    <Compile Include="Korlib\Runtime\TypeInfo.cs" />
+    <Compile Include="Korlib\Runtime\TypeMetadata.cs" />
+    <Compile Include="Korlib\Runtime\VTable.cs" />
+    <Compile Include="Korlib\System\Collections\Generic\ICollection.cs" />
+    <Compile Include="Korlib\System\Collections\Generic\IEnumerable.cs" />
+    <Compile Include="Korlib\System\Collections\Generic\IEnumerator.cs" />
+    <Compile Include="Korlib\System\Collections\Generic\IList.cs" />
+    <Compile Include="Korlib\System\Collections\Generic\List.cs" />
+    <Compile Include="Korlib\System\Collections\ArrayList.cs" />
+    <Compile Include="Korlib\System\Collections\ICollection.cs" />
+    <Compile Include="Korlib\System\Collections\IEnumerable.cs" />
+    <Compile Include="Korlib\System\Collections\IEnumerator.cs" />
+    <Compile Include="Korlib\System\Collections\IList.cs" />
+    <Compile Include="Korlib\System\IO\FileAccess.cs" />
+    <Compile Include="Korlib\System\IO\FileShare.cs" />
+    <Compile Include="Korlib\System\IO\Path.cs" />
+    <Compile Include="Korlib\System\IO\SeekOrigin.cs" />
+    <Compile Include="Korlib\System\IO\Stream.cs" />
+    <Compile Include="Korlib\System\ArgumentException.cs" />
+    <Compile Include="Korlib\System\ArgumentNullException.cs" />
+    <Compile Include="Korlib\System\ArgumentOutOfRangeException.cs" />
+    <Compile Include="Korlib\System\ArithmeticException.cs" />
+    <Compile Include="Korlib\System\Array.cs" />
+    <Compile Include="Korlib\System\Boolean.cs" />
+    <Compile Include="Korlib\System\Byte.cs" />
+    <Compile Include="Korlib\System\Char.cs" />
+    <Compile Include="Korlib\System\CharEnumerator.cs" />
+    <Compile Include="Korlib\System\DivideByZeroException.cs" />
+    <Compile Include="Korlib\System\Enum.cs" />
+    <Compile Include="Korlib\System\Exception.cs" />
+    <Compile Include="Korlib\System\ICloneable.cs" />
+    <Compile Include="Korlib\System\IDisposable.cs" />
+    <Compile Include="Korlib\System\Int16.cs" />
+    <Compile Include="Korlib\System\Int32.cs" />
+    <Compile Include="Korlib\System\Int64.cs" />
+    <Compile Include="Korlib\System\IntPtr.cs" />
+    <Compile Include="Korlib\System\InvalidCastException.cs" />
+    <Compile Include="Korlib\System\InvalidOperationException.cs" />
+    <Compile Include="Korlib\System\NotImplementedException.cs" />
+    <Compile Include="Korlib\System\NotSupportedException.cs" />
+    <Compile Include="Korlib\System\NullReferenceException.cs" />
+    <Compile Include="Korlib\System\Object.cs" />
+    <Compile Include="Korlib\System\OutOfMemoryException.cs" />
+    <Compile Include="Korlib\System\OverflowException.cs" />
+    <Compile Include="Korlib\System\RuntimeTypeHandle.cs" />
+    <Compile Include="Korlib\System\SByte.cs" />
+    <Compile Include="Korlib\System\String.cs" />
+    <Compile Include="Korlib\System\SystemException.cs" />
+    <Compile Include="Korlib\System\Type.cs" />
+    <Compile Include="Korlib\System\UInt16.cs" />
+    <Compile Include="Korlib\System\UInt32.cs" />
+    <Compile Include="Korlib\System\UInt64.cs" />
+    <Compile Include="Korlib\System\ValueType.cs" />
+    <Compile Include="Korlib\System\Void.cs" />
+    <Compile Include="Korlib\Convert.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Cls.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Commands.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\CpuId.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Egg.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Halt.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Help.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Keymap.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\ListResources.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\LS.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\LsPci.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\MemDump.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\MemView.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\More.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Mount.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Panic.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Reboot.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Show.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Snake.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Stage.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Testcase.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Time.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Timezone.cs" />
+    <Compile Include="Shell\Commands\BuiltIn\Version.cs" />
+    <Compile Include="Shell\Commands\CommandExecutionAttemptResult.cs" />
+    <Compile Include="Shell\Commands\CommandExecutionContext.cs" />
+    <Compile Include="Shell\Commands\CommandTableEntry.cs" />
+    <Compile Include="Shell\Commands\CommandTableHeader.cs" />
+    <Compile Include="Shell\Prompter.cs" />
+    <Compile Include="Vfs\AccessCheck.cs" />
+    <Compile Include="Vfs\AccessMode.cs" />
+    <Compile Include="Vfs\DirectoryEntry.cs" />
+    <Compile Include="Vfs\DirectoryNode.cs" />
+    <Compile Include="Vfs\FileSystemFactory.cs" />
+    <Compile Include="Vfs\IDirectory.cs" />
+    <Compile Include="Vfs\IFileSystem.cs" />
+    <Compile Include="Vfs\IFileSystemService.cs" />
+    <Compile Include="Vfs\IVfsNode.cs" />
+    <Compile Include="Vfs\NodeBase.cs" />
+    <Compile Include="Vfs\PathResolutionFlags.cs" />
+    <Compile Include="Vfs\PathResolver.cs" />
+    <Compile Include="Vfs\PathSplitter.cs" />
+    <Compile Include="Vfs\SymbolicLinkNode.cs" />
+    <Compile Include="Vfs\VfsNodeType.cs" />
+    <Compile Include="Vfs\VirtualFileSystem.cs" />
+    <Compile Include="ASCII.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Clock.cs" />
+    <Compile Include="CommandLine.cs" />
+    <Compile Include="Console.cs" />
+    <Compile Include="Diagnostics.cs" />
+    <Compile Include="EntryModule.cs" />
+    <Compile Include="EventRegisterStatus.cs" />
+    <Compile Include="KernelError.cs" />
+    <Compile Include="KernelStage.cs" />
+    <Compile Include="KeyMap.cs" />
+    <Compile Include="MemoryBlock.cs" />
+    <Compile Include="Multiboot.cs" />
+    <Compile Include="PageAllocator.cs" />
+    <Compile Include="PageAttributes.cs" />
+    <Compile Include="PagingMemoryRequirements.cs" />
+    <Compile Include="Stubs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\build\Temp\BuiltinKeymaps.ska">
+      <LogicalName>BuiltinKeyMaps.ska</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\Data\FloppyDiskImage\fat12.img">
+      <LogicalName>fat12.img</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Documents\ADC.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Config\BuiltinKeyMaps.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>..\build\KernelTestsWrapperGen.exe
+..\build\key-compiler.exe -D:.\..\Data\KeyMaps\ "$(SolutionDir)\Data\KeyMaps\DE.skm" -o:"$(SolutionDir)\build\KeyMaps\DE.bin"
+..\build\key-compiler.exe -D:.\..\Data\KeyMaps\ "$(SolutionDir)\Data\KeyMaps\US.skm" -o:"$(SolutionDir)\build\KeyMaps\US.bin"
+..\build\key-compiler.exe -D:.\..\Data\KeyMaps\ "$(SolutionDir)\Data\KeyMaps\UK.skm" -o:"$(SolutionDir)\build\KeyMaps\UK.bin"
+..\build\key-compiler.exe -D:.\..\Data\KeyMaps\ "$(SolutionDir)\Data\KeyMaps\US-Dvorak-ANSI.skm" -o:"$(SolutionDir)\build\KeyMaps\US-Dvorak-ANSI.bin"
+..\build\key-compiler.exe -D:.\..\Data\KeyMaps\ "$(SolutionDir)\Data\KeyMaps\US-Dvorak-Classic.skm" -o:"$(SolutionDir)\build\KeyMaps\US-Dvorak-Classic.bin"
+..\build\key-compiler.exe -D:.\..\Data\KeyMaps\ -ar -o:"$(TargetDir)\Temp\BuiltinKeymaps.ska" "@$(ProjectDir)\Config\BuiltinKeymaps.cfg"</PreBuildEvent>
+    <PostBuildEvent>..\build\SharpOS-AOT.exe -d:tests.dump -text-dump -v -o ..\build\SharpOS.Kernel.bin ..\build\SharpOS.Kernel.dll ..\build\SharpOS.Kernel.Tests.CS.dll ..\build\SharpOS.Kernel.Tests.IL.dll
+
+copy ..\build\..\Data\DiskImages\TemplateDisk.img ..\build\distro\common\SharpOS.img
+
+..\build\disk-image-updater.exe -m -i ..\build\SharpOS.Kernel.bin -o ..\build\distro\common\SharpOS.img -vhd ..\build\distro\VirtualPC\hd1.vhd
+
+"C:\Program Files\qemu\qemu-system-x86_64.exe" -accel hax -no-reboot -ctrl-grab -m 2048 -smp 2 -k en-gb -d guest_errors -serial stdio -drive format=raw,id=disk,file=..\build\distro\virtualpc\hd1.vhd,if=none -device ide-hd,drive=disk,bus=ide.0 -device AC97 -rtc base=localtime</PostBuildEvent>
+  </PropertyGroup>
+</Project>

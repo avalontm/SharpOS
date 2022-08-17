@@ -1,0 +1,5 @@
+timeout 0
+
+title=SharpOS
+root (hd0,0)
+kernel /SharpOS.Kernel.bin
